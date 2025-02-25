@@ -13,6 +13,7 @@ from utils.loss import ScaledL2Loss
 from utils.sample import TSData
 from model.GPT4SSS import GPT4SSS
 from model.TimeLLM import TimeLLM
+from model.AutoTimes import AutoTimes
 
 
 class Experiment:
@@ -79,6 +80,8 @@ class Experiment:
             self.model = GPT4SSS(self.conf).to(self.device)
         elif model_selected == "TimeLLM":
             self.model = TimeLLM(self.conf).to(self.device)
+        elif model_selected == "AutoTimes":
+            self.model = AutoTimes(self.conf).to(self.device)
         
         logging.info("Experiment Configuration:")
         for key, value in self.conf.confLoaded.items():
@@ -172,13 +175,11 @@ class Experiment:
         
         with torch.no_grad():
             for one_batch, another_batch in zip(self.val_loader1, self.val_loader2):
-                
                 one_batch = one_batch.to(self.device)
                 another_batch = another_batch.to(self.device)
                 
                 one_batch_reduce = self.model(one_batch)
                 another_batch_reduce = self.model(another_batch)
-                
                 err = self.loss_calculator(one_batch, another_batch, one_batch_reduce, another_batch_reduce)
                 
                 errors.append(err.cpu())

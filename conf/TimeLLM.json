@@ -16,8 +16,8 @@
     "device": "cuda:3",
     "GPUs": [3, 4],
     
-    "LLM_type": "gpt2",
-    "LLM_layers_num": 6,
+    "llm_type": "gpt2",
+    "llm_layers": 6,
 
     "epoch_max": 100,
     "len_series": 256,

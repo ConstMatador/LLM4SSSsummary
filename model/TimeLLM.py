@@ -15,8 +15,8 @@ class LLM4SSS(nn.Module):
         
         self.conf = conf
         self.llm_path = conf.getEntry("llm_path")
-        self.llm_type = conf.getEntry("LLM_type")
-        self.llm_layers_num = conf.getEntry("LLM_layers_num")
+        self.llm_type = conf.getEntry("llm_type")
+        self.llm_layers_num = conf.getEntry("llm_layers")
         self.reduced_vocab_size = conf.getEntry("reduced_vocab_size")
         self.dim_llm = self.conf.getEntry("dim_llm")
         self.dim_ff = conf.getEntry("dim_ff")
@@ -57,6 +57,8 @@ class LLM4SSS(nn.Module):
         self.reduce_layer = nn.Linear(self.vocab_size, self.reduced_vocab_size)
         self.mapping = Mapping(conf)
         self.recover1 = nn.Linear(self.dim_llm, self.dim_ff)
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.1)
         self.recover2 = nn.Linear(self.patch_num + self.prompt_len, self.patch_num)
         self.out_projection = FlattenHead(self.conf, self.patch_num)
         
@@ -91,7 +93,8 @@ class LLM4SSS(nn.Module):
             prompts.append(prompt)
             # prompts: (batch_size)
         
-        prompts = self.tokenizer(prompts, return_tensors="pt", padding=True, truncation=True, max_length=2048).input_ids
+        prompts = self.tokenizer(prompts, return_tensors="pt", padding=True,
+                                 truncation=True, max_length=2048).input_ids
         prompts_embedding = self.llm_model.get_input_embeddings()(prompts)
         # prompts_embedding: (batch_size, prompt_len, dim_llm)
         
@@ -121,17 +124,15 @@ class LLM4SSS(nn.Module):
         
         with torch.no_grad():
             llm_output = self.llm_model(inputs_embeds = llm_imput_embeddings).last_hidden_state
-        # llm_output: (batch_size, patch_num + prompt_len, dim_llm)
+            # llm_output: (batch_size, patch_num + prompt_len, dim_llm)
         
         llm_output = self.recover1(llm_output)
-        # llm_output = llm_output[:, :, :self.dim_ff]
         # llm_output: (batch_size, patch_num + prompt_len, dim_ff)
         
-        # llm_output = self.tanh(llm_output)
-        # llm_output: (batch_size, patch_num + prompt_len, dim_ff)
+        llm_output = self.relu(llm_output)
+        llm_output = self.dropout(llm_output)
         
         llm_output = self.recover2(llm_output.permute(0, 2, 1)).permute(0, 2, 1)
-        # llm_output = llm_output.permute(0, 2, 1)[:, :, -self.patch_num:].permute(0, 2, 1)
         # llm_output: (batch_size, patch_num, dim_ff)
         
         series_reduce = self.out_projection(llm_output)
@@ -141,7 +142,7 @@ class LLM4SSS(nn.Module):
 
 
 class FlattenHead(nn.Module):
-    def __init__(self, conf: Configuration, patch_num, head_dropout=0):
+    def __init__(self, conf: Configuration, patch_num, head_dropout=0.1):
         super(FlattenHead, self).__init__()
         
         dim_ff = conf.getEntry("dim_ff")

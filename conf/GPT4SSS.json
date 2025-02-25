@@ -13,19 +13,16 @@
     "log_path": "./example/GPT4SSS/log/example.log",
     "model_path": "./example/GPT4SSS/model/",
 
-    "llm_type": "gpt2",
-
     "device": "cuda:3",
     "GPUs": [3, 4],
+
+    "llm_type": "gpt2",
+    "llm_layers": 6,
 
     "epoch_max": 100,
     "len_series": 256,
     "len_reduce": 16,
     "batch_size": 128,
-
-    "dropout": 0.1,
-
-    "llm_layers": 6,
     
     "data_size": 1000000,
     "train_size":200000,
@@ -38,5 +35,7 @@
     "head_num": 8,
     "dim_model": 512,
     "dim_llm": 768,
-    "dim_ff": 256
+    "dim_ff": 256,
+
+    "dropout": 0.1
 }

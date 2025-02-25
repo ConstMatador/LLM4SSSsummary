@@ -32,7 +32,8 @@ class DataEmbedding(nn.Module):
         self.dropout = conf.getEntry('dropout')
         
         padding = 1 if torch.__version__ >= '1.5.0' else 2
-        self.tokenConv = nn.Conv1d(in_channels=1, out_channels=self.dim_model, kernel_size=3, padding=padding, padding_mode='circular', bias=False)
+        self.tokenConv = nn.Conv1d(in_channels=1, out_channels=self.dim_model,
+                                   kernel_size=3, padding=padding, padding_mode='circular', bias=False)
         self.position_mbedding = PositionalEmbedding(self.dim_model)
         self.dropout = nn.Dropout(p=self.dropout)
 
@@ -44,5 +45,4 @@ class DataEmbedding(nn.Module):
         # x: [batch_size, len_series, dim_model]
         x = x + self.position_mbedding(x)
         # x: [batch_size, len_series, dim_model]
-        
         return self.dropout(x)

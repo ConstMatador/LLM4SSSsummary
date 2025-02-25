@@ -48,7 +48,6 @@ class GPT4SSS(nn.Module):
         
         
     def forward(self, x):
-        
         # x: [batch_size, len_series]
         x = self.enc_embedding(x)
         # x: [batch_size, len_series, dim_model]

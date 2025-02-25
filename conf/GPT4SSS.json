@@ -1,4 +1,6 @@
 {
+    "model_selected": "GPT4SSS",
+
     "conf_path": "./conf/GPT4SSS.json",
     "data_path": "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin",
     "llm_path": "../Model/",
@@ -13,13 +15,13 @@
 
     "llm_type": "gpt2",
 
-    "device": "cuda:4",
-    "GPUs": [4, 5],
+    "device": "cuda:3",
+    "GPUs": [3, 4],
 
     "epoch_max": 100,
     "len_series": 256,
     "len_reduce": 16,
-    "batch_size": 256,
+    "batch_size": 128,
 
     "dropout": 0.1,
 

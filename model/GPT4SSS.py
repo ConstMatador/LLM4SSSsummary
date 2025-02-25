@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from transformers import GPT2Model, GPT2Tokenizer, GPT2Config
 from transformers import BertModel, BertTokenizer, BertConfig
+from transformers import LlamaModel, LlamaTokenizer, LlamaConfig
 import math
 import logging
 
@@ -25,26 +26,28 @@ class GPT4SSS(nn.Module):
         self.llm_pos = self.llm_path + self.llm_type + '/'
         
         if self.llm_type == 'gpt2':
-            self.llm = GPT2Model.from_pretrained(self.llm_pos).to(self.device)  # pyright: ignore
+            self.llm = GPT2Model.from_pretrained(self.llm_pos)  # pyright: ignore
         elif self.llm_type == 'bert':
-            self.llm = BertModel.from_pretrained(self.llm_pos).to(self.device)  # pyright: ignore
+            self.llm = BertModel.from_pretrained(self.llm_pos)  # pyright: ignore
+        elif self.llm_type == 'llama7b':
+            self.llm = LlamaModel.from_pretrained(self.llm_pos) # pyright: ignore
             
-        self.enc_embedding = DataEmbedding(self.conf).to(self.device)
+        self.enc_embedding = DataEmbedding(self.conf)
         
         logging.info('Layer Unfrozen : ')
-        for i, (name, param) in enumerate(self.llm.named_parameters()):
+        for _, (name, param) in enumerate(self.llm.named_parameters()):
             if 'ln' in name or 'wpe' in name or 'mlp' in name:
                 param.requires_grad = True
                 logging.info(f'{name}')
             else:
                 param.requires_grad = False
         
-        self.flatten = nn.Flatten(start_dim=1).to(self.device)
+        self.flatten = nn.Flatten(start_dim=1)
         self.dim_mid = math.floor(math.sqrt(self.len_series * self.dim_ff))
-        self.linear1 = nn.Linear(self.len_series * self.dim_ff, self.dim_mid).to(self.device)
-        self.tanh = nn.Tanh().to(self.device)
-        self.dropout = nn.Dropout(p=0.1).to(self.device)
-        self.linear2 = nn.Linear(self.dim_mid, self.len_reduce).to(self.device)
+        self.linear1 = nn.Linear(self.len_series * self.dim_ff, self.dim_mid)
+        self.tanh = nn.Tanh()
+        self.dropout = nn.Dropout(p=0.1)
+        self.linear2 = nn.Linear(self.dim_mid, self.len_reduce)
         
         
     def forward(self, x):

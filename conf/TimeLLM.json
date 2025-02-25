@@ -1,0 +1,48 @@
+{
+    "conf_path": "./conf/LLM4SSS_example.json",
+    "data_path": "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin",
+    "LLM_path": "../Model/",
+    "train_path": "./example/sample/train.bin",
+    "val_path": "./example/sample/val.bin",
+    "test_path": "./example/sample/test.bin",
+    "train_indices_path": "./example/sample/train_indices.bin",
+    "val_indices_path": "./example/sample/val_indices.bin",
+    "test_indices_path": "./example/sample/test_indices.bin",
+    "log_path": "./example/log/example.log",
+    "model_path": "./example/model/",
+
+    "device": "cuda:3",
+    "GPUs": [3, 4],
+    
+    "LLM_type": "gpt2",
+    "LLM_layers_num": 6,
+
+    "epoch_max": 100,
+    "len_series": 256,
+    "len_reduce": 16,
+    "batch_size": 128,
+    
+    "data_size": 1000000,
+    "train_size":200000,
+    "val_size": 10000,
+    "test_size": 10000,
+
+    "patch_len": 16,
+    "stride": 8,
+
+    "head_num": 8,
+    "dim_model": 128,
+    "dim_LLM": 768,
+    "dim_ff": 128,
+
+    "reduced_vocab_size": 1000,
+
+    "seq_overview": "These sequences come from the salt dataset, with a sequence length of 256. We need to compress them into sequences of length 16 and try to keep the original sequence features.",
+
+    "orth_regularizer": "srip",
+    "srip_mode": "linear",
+    "srip_max": 5e-4,
+    "srip_min": 0,
+
+    "prompt_len": 256
+}

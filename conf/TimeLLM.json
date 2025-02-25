@@ -1,15 +1,17 @@
 {
-    "conf_path": "./conf/LLM4SSS_example.json",
+    "model_selected": "TimeLLM",
+
+    "conf_path": "./conf/GPT4SSS.json",
     "data_path": "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin",
-    "LLM_path": "../Model/",
-    "train_path": "./example/sample/train.bin",
-    "val_path": "./example/sample/val.bin",
-    "test_path": "./example/sample/test.bin",
-    "train_indices_path": "./example/sample/train_indices.bin",
-    "val_indices_path": "./example/sample/val_indices.bin",
-    "test_indices_path": "./example/sample/test_indices.bin",
-    "log_path": "./example/log/example.log",
-    "model_path": "./example/model/",
+    "llm_path": "../Model/",
+    "train_path": "./example/GPT4SSS/sample/train.bin",
+    "val_path": "./example/GPT4SSS/sample/val.bin",
+    "test_path": "./example/GPT4SSS/sample/test.bin",
+    "train_indices_path": "./example/GPT4SSS/sample/train_indices.bin",
+    "val_indices_path": "./example/GPT4SSS/sample/val_indices.bin",
+    "test_indices_path": "./example/GPT4SSS/sample/test_indices.bin",
+    "log_path": "./example/GPT4SSS/log/example.log",
+    "model_path": "./example/GPT4SSS/model/",
 
     "device": "cuda:3",
     "GPUs": [3, 4],
@@ -32,17 +34,12 @@
 
     "head_num": 8,
     "dim_model": 128,
-    "dim_LLM": 768,
+    "dim_llm": 768,
     "dim_ff": 128,
 
     "reduced_vocab_size": 1000,
 
     "seq_overview": "These sequences come from the salt dataset, with a sequence length of 256. We need to compress them into sequences of length 16 and try to keep the original sequence features.",
-
-    "orth_regularizer": "srip",
-    "srip_mode": "linear",
-    "srip_max": 5e-4,
-    "srip_min": 0,
 
     "prompt_len": 256
 }

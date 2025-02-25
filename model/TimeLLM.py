@@ -14,11 +14,11 @@ class LLM4SSS(nn.Module):
         super(LLM4SSS, self).__init__()
         
         self.conf = conf
-        self.llm_path = conf.getEntry("LLM_path")
+        self.llm_path = conf.getEntry("llm_path")
         self.llm_type = conf.getEntry("LLM_type")
         self.llm_layers_num = conf.getEntry("LLM_layers_num")
         self.reduced_vocab_size = conf.getEntry("reduced_vocab_size")
-        self.dim_llm = self.conf.getEntry("dim_LLM")
+        self.dim_llm = self.conf.getEntry("dim_llm")
         self.dim_ff = conf.getEntry("dim_ff")
         self.device = conf.getEntry("device")
         self.prompt_len = self.conf.getEntry("prompt_len")

@@ -1,6 +1,6 @@
 {
     "model_selected": "GPT4SSS",
-
+    
     "conf_path": "./conf/GPT4SSS.json",
     "data_path": "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin",
     "llm_path": "../Model/",

@@ -9,7 +9,7 @@ class Mapping(nn.Module):
         super(Mapping, self).__init__()
         
         self.dim_model = conf.getEntry('dim_model')
-        self.dim_llm = conf.getEntry('dim_LLM')
+        self.dim_llm = conf.getEntry('dim_llm')
         self.head_num = conf.getEntry('head_num')
         self.device = conf.getEntry('device')
         

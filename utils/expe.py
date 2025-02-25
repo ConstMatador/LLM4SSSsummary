@@ -1,6 +1,5 @@
 import os
 import logging
-import json
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -13,6 +12,7 @@ from utils.sample import getSamples
 from utils.loss import ScaledL2Loss
 from utils.sample import TSData
 from model.GPT4SSS import GPT4SSS
+from model.TimeLLM import TimeLLM
 
 
 class Experiment:
@@ -61,16 +61,24 @@ class Experiment:
         train_sample, val_sample, test_sample = getSamples(self.conf)
         # train_sample, val_sample, test_sample: (train_size, len_series), (val_size, len_series), (test_size, len_series)
         
-        self.train_loader1 =  DataLoader(TSData(train_sample), batch_size = self.batch_size, shuffle = True, drop_last=False)
-        self.train_loader2 =  DataLoader(TSData(train_sample), batch_size = self.batch_size, shuffle = True, drop_last=False)
-        self.val_loader1 = DataLoader(TSData(val_sample), batch_size = self.batch_size, shuffle = True, drop_last=False)
-        self.val_loader2 = DataLoader(TSData(val_sample), batch_size = self.batch_size, shuffle = True, drop_last=False)
-        self.test_loader1 = DataLoader(TSData(test_sample), batch_size = self.batch_size, shuffle = True, drop_last=False)
-        self.test_loader2 = DataLoader(TSData(test_sample), batch_size = self.batch_size, shuffle = True, drop_last=False)
+        self.train_loader1 =  DataLoader(TSData(train_sample), 
+                                         batch_size = self.batch_size, shuffle = True, drop_last=False)
+        self.train_loader2 =  DataLoader(TSData(train_sample), 
+                                         batch_size = self.batch_size, shuffle = True, drop_last=False)
+        self.val_loader1 = DataLoader(TSData(val_sample), 
+                                      batch_size = self.batch_size, shuffle = True, drop_last=False)
+        self.val_loader2 = DataLoader(TSData(val_sample), 
+                                      batch_size = self.batch_size, shuffle = True, drop_last=False)
+        self.test_loader1 = DataLoader(TSData(test_sample), 
+                                       batch_size = self.batch_size, shuffle = True, drop_last=False)
+        self.test_loader2 = DataLoader(TSData(test_sample), 
+                                       batch_size = self.batch_size, shuffle = True, drop_last=False)
         
         model_selected = self.conf.getEntry("model_selected")
         if model_selected == "GPT4SSS":
             self.model = GPT4SSS(self.conf).to(self.device)
+        elif model_selected == "TimeLLM":
+            self.model = TimeLLM(self.conf).to(self.device)
         
         logging.info("Experiment Configuration:")
         for key, value in self.conf.confLoaded.items():

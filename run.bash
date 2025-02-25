@@ -1,1 +1,1 @@
-nohup python LLM4SSSsummary_run.py -C conf/GPT4SSS.json &
+python LLM4SSSsummary_run.py -C conf/TimeLLM.json

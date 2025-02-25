@@ -14,7 +14,7 @@
     "model_path": "./example/GPT4SSS/model/",
 
     "device": "cuda:3",
-    "GPUs": [3, 4],
+    "GPUs": [3],
 
     "llm_type": "gpt2",
     "llm_layers": 6,

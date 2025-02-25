@@ -9,9 +9,9 @@ from transformers import LlamaModel, LlamaTokenizer, LlamaConfig
 from transformers import BertModel, BertTokenizer, BertConfig
 from transformers import GPT2Model, GPT2Tokenizer, GPT2Config
 
-class LLM4SSS(nn.Module):
+class TimeLLM(nn.Module):
     def __init__(self, conf: Configuration):
-        super(LLM4SSS, self).__init__()
+        super(TimeLLM, self).__init__()
         
         self.conf = conf
         self.llm_path = conf.getEntry("llm_path")
@@ -27,15 +27,15 @@ class LLM4SSS(nn.Module):
         self.patch_num = calculate_patch_num(conf)
         
         if self.llm_type == 'gpt2':
-            self.llm = GPT2Model.from_pretrained(self.llm_pos)  # pyright: ignore
+            self.llm_model = GPT2Model.from_pretrained(self.llm_pos)  # pyright: ignore
             self.tokenizer = GPT2Tokenizer.from_pretrained(self.llm_pos)
             self.tokenizer.pad_token = '[PAD]'
         elif self.llm_type == 'bert':
-            self.llm = BertModel.from_pretrained(self.llm_pos)  # pyright: ignore
+            self.llm_model = BertModel.from_pretrained(self.llm_pos)  # pyright: ignore
             self.tokenizer = BertTokenizer.from_pretrained(self.llm_pos)
             self.tokenizer.pad_token = '[PAD]'
         elif self.llm_type == 'llama7b':
-            self.llm = LlamaModel.from_pretrained(self.llm_pos) # pyright: ignore
+            self.llm_model = LlamaModel.from_pretrained(self.llm_pos) # pyright: ignore
             self.tokenizer = LlamaTokenizer.from_pretrained(self.llm_pos, local_files_only=True)
             if self.tokenizer.eos_token:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -50,7 +50,7 @@ class LLM4SSS(nn.Module):
             else:
                 param.requires_grad = False
         
-        self.word_embeddings = self.llm_model.get_input_embeddings().weight
+        self.word_embeddings = self.llm_model.get_input_embeddings().weight.to(self.device)
         # self.word_embeddings: (vocab_size, dim_llm)
         self.vocab_size = self.word_embeddings.shape[0]
         self.patching = Patching(conf)
@@ -77,7 +77,7 @@ class LLM4SSS(nn.Module):
         # batch.diff(dim=1): (batch_size, len_series - 1)
         # trends: (batch_size)
         
-        prompts = []
+        self.prompts = []
         for i in range(min_batch.values.shape[0]):
             min_batch_i = str(min_batch.values[i])
             max_batch_i = str(max_batch.values[i])
@@ -90,25 +90,29 @@ class LLM4SSS(nn.Module):
                 f"median value {median_batch_i}, "
                 f"the trend of input is {'upward' if trends[i] > 0 else 'downward'}, "
             )
-            prompts.append(prompt)
+            self.prompts.append(prompt)
             # prompts: (batch_size)
         
-        prompts = self.tokenizer(prompts, return_tensors="pt", padding=True,
+        self.prompts = self.tokenizer(self.prompts, return_tensors="pt", padding=True,
                                  truncation=True, max_length=2048).input_ids
-        prompts_embedding = self.llm_model.get_input_embeddings()(prompts)
+        self.prompts = self.prompts.to(self.device)
+        self.prompts_embedding = self.llm_model.get_input_embeddings()(self.prompts)
+        self.prompts_embedding = self.prompts_embedding.to(self.device)
         # prompts_embedding: (batch_size, prompt_len, dim_llm)
         
-        current_length = prompts_embedding.size(1)
+        current_length = self.prompts_embedding.size(1)
 
         if current_length > self.prompt_len:
-            prompts_embedding = prompts_embedding[:, :self.prompt_len, :]
+            self.prompts_embedding = self.prompts_embedding[:, :self.prompt_len, :]
         elif current_length < self.prompt_len:
-            pad_embedding = self.llm_model.get_input_embeddings()(
+            self.pad_embedding = self.llm_model.get_input_embeddings()(
                 torch.tensor([self.tokenizer.pad_token_id] * (self.prompt_len - current_length))
                 .unsqueeze(0)
-                .repeat(prompts_embedding.size(0), 1)
+                .repeat(self.prompts_embedding.size(0), 1)
+                .to(self.device)
             )
-            prompts_embedding = torch.cat([prompts_embedding, pad_embedding], dim=1)
+            self.pad_embedding = self.pad_embedding.to(self.device)
+            self.prompts_embedding = torch.cat([self.prompts_embedding, self.pad_embedding], dim=1)
         
         batch_patched = self.patching(batch)
         # batch_patched: (batch_size, patch_num, dim_model)
@@ -119,8 +123,10 @@ class LLM4SSS(nn.Module):
         batch_mapped = self.mapping(batch_patched, source_embeddings, source_embeddings)
         # batch_mapped: (batch_size, patch_num, dim_llm)
     
-        llm_imput_embeddings = torch.cat([prompts_embedding, batch_mapped], dim=1)
+        llm_imput_embeddings = torch.cat([self.prompts_embedding, batch_mapped], dim=1)
         # llm_imput_embeddings: (batch_size, patch_num + prompt_len, dim_llm)
+        
+        llm_imput_embeddings = llm_imput_embeddings.to(self.device)
         
         with torch.no_grad():
             llm_output = self.llm_model(inputs_embeds = llm_imput_embeddings).last_hidden_state
@@ -156,14 +162,10 @@ class FlattenHead(nn.Module):
 
     def forward(self, x):
         # llm_output: (batch_size, patch_num, dim_ff)
-        
         x = self.flatten(x)
         # llm_output: (batch_size, patch_num * dim_ff)
-        
         x = self.linear(x)
         # llm_output: (batch_size, len_reduce)
-        
         x = self.dropout(x)
         # llm_output: (batch_size, len_reduce)
-        
         return x

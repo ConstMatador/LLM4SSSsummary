@@ -3,9 +3,7 @@ import json
 class Configuration:
     def __init__(self, confPath: str = ""):
         self.confPath = confPath
-        self.defaultConf = {
-            
-        }
+        self.defaultConf = {}
         self.loadConf()
     
     

@@ -2,6 +2,7 @@ from utils.conf import Configuration
 from utils.patching import Patching
 from utils.patching import calculate_patch_num
 from utils.mapping import Mapping
+import logging
 
 import torch
 from torch import nn
@@ -47,6 +48,7 @@ class TimeLLM(nn.Module):
         for _, (name, param) in enumerate(self.llm_model.named_parameters()):
             if 'ln' in name or 'wpe' in name:
                 param.requires_grad = True
+                logging.info(f'{name}')
             else:
                 param.requires_grad = False
         

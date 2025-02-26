@@ -11,9 +11,11 @@ from utils.conf import Configuration
 from utils.sample import getSamples
 from utils.loss import ScaledL2Loss
 from utils.sample import TSData
+
 from model.GPT4SSS import GPT4SSS
 from model.TimeLLM import TimeLLM
 from model.AutoTimes import AutoTimes
+from model.UniTime import UniTime
 
 
 class Experiment:
@@ -24,6 +26,9 @@ class Experiment:
         self.model_path = self.conf.getEntry("model_path")
         self.batch_size = self.conf.getEntry("batch_size")
         self.log_path = self.conf.getEntry("log_path")
+        self.model_selected = self.conf.getEntry("model_selected")
+        if self.model_selected == "UniTime":
+            self.mask_rate = self.conf.getEntry("mask_rate")
         
         logging.basicConfig(
             level = logging.INFO,
@@ -63,17 +68,17 @@ class Experiment:
         # train_sample, val_sample, test_sample: (train_size, len_series), (val_size, len_series), (test_size, len_series)
         
         self.train_loader1 =  DataLoader(TSData(train_sample), 
-                                         batch_size = self.batch_size, shuffle = True, drop_last=False)
+                                         batch_size = self.batch_size, shuffle = True, drop_last=True)
         self.train_loader2 =  DataLoader(TSData(train_sample), 
-                                         batch_size = self.batch_size, shuffle = True, drop_last=False)
+                                         batch_size = self.batch_size, shuffle = True, drop_last=True)
         self.val_loader1 = DataLoader(TSData(val_sample), 
-                                      batch_size = self.batch_size, shuffle = True, drop_last=False)
+                                      batch_size = self.batch_size, shuffle = True, drop_last=True)
         self.val_loader2 = DataLoader(TSData(val_sample), 
-                                      batch_size = self.batch_size, shuffle = True, drop_last=False)
+                                      batch_size = self.batch_size, shuffle = True, drop_last=True)
         self.test_loader1 = DataLoader(TSData(test_sample), 
-                                       batch_size = self.batch_size, shuffle = True, drop_last=False)
+                                       batch_size = self.batch_size, shuffle = True, drop_last=True)
         self.test_loader2 = DataLoader(TSData(test_sample), 
-                                       batch_size = self.batch_size, shuffle = True, drop_last=False)
+                                       batch_size = self.batch_size, shuffle = True, drop_last=True)
         
         model_selected = self.conf.getEntry("model_selected")
         if model_selected == "GPT4SSS":
@@ -82,6 +87,8 @@ class Experiment:
             self.model = TimeLLM(self.conf).to(self.device)
         elif model_selected == "AutoTimes":
             self.model = AutoTimes(self.conf).to(self.device)
+        elif model_selected == "UniTime":
+            self.model = UniTime(self.conf).to(self.device)
         
         logging.info("Experiment Configuration:")
         for key, value in self.conf.confLoaded.items():
@@ -144,7 +151,17 @@ class Experiment:
                 continue
             init_weights(module)
         return model
-            
+    
+    
+    def random_mask(self):
+        mask = torch.rand((self.batch_size, self.len_series))   # 随机生成0-1的随机数
+        # mask: (batch_size, len_series)
+        mask[mask < self.mask_rate] = 0  # masked
+        mask[mask >= self.mask_rate] = 1  # remained
+        
+        return mask
+        # mask: (batch_size, len_series)
+    
             
     def train(self) -> None:
         logging.info(f'epoch: {self.epoch}, start training')
@@ -153,12 +170,26 @@ class Experiment:
             
             self.optimizer.zero_grad()
             
-            one_batch = one_batch.to(self.device)   # (batch_size, len_series)
-            one_batch_reduce = self.model(one_batch)   # (batch_size, len_reduce)
-            
-            with torch.no_grad():
-                another_batch = another_batch.to(self.device)
-                another_batch_reduce = self.model(another_batch)
+            # masking
+            if self.model_selected == "UniTime":
+                one_mask = self.random_mask().to(self.device)
+                another_mask = self.random_mask().to(self.device)
+                
+                one_batch = one_batch.to(self.device)
+                one_batch = one_batch.masked_fill(one_mask==0, 0)   # (batch_size, len_series)
+                one_batch_reduce = self.model(one_batch, one_mask)  # (batch_size, len_reduce)
+                
+                with torch.no_grad():
+                    another_batch = another_batch.to(self.device)
+                    another_batch = another_batch.masked_fill(another_mask==0, 0)
+                    another_batch_reduce = self.model(another_batch, another_mask)
+            else:
+                one_batch = one_batch.to(self.device)   # (batch_size, len_series)
+                one_batch_reduce = self.model(one_batch)   # (batch_size, len_reduce)
+                
+                with torch.no_grad():
+                    another_batch = another_batch.to(self.device)
+                    another_batch_reduce = self.model(another_batch)
                              
             loss = self.loss_calculator(one_batch, another_batch, one_batch_reduce, another_batch_reduce)
             
@@ -178,8 +209,16 @@ class Experiment:
                 one_batch = one_batch.to(self.device)
                 another_batch = another_batch.to(self.device)
                 
-                one_batch_reduce = self.model(one_batch)
-                another_batch_reduce = self.model(another_batch)
+                # masking
+                mask = torch.ones((self.batch_size, self.len_series)).to(self.device)
+                with torch.no_grad():
+                    if self.model_selected == "UniTime":
+                        one_batch_reduce = self.model(one_batch, mask)
+                        another_batch_reduce = self.model(another_batch, mask)
+                    else:
+                        one_batch_reduce = self.model(one_batch)
+                        another_batch_reduce = self.model(another_batch)
+                        
                 err = self.loss_calculator(one_batch, another_batch, one_batch_reduce, another_batch_reduce)
                 
                 errors.append(err.cpu())
@@ -197,8 +236,16 @@ class Experiment:
             for one_batch, another_batch in zip(self.test_loader1, self.test_loader2):
                 one_batch = one_batch.to(self.device)
                 another_batch = another_batch.to(self.device)
-                one_batch_reduce = self.model(one_batch)
-                another_batch_reduce = self.model(another_batch)
+                
+                # masking
+                mask = torch.ones((self.batch_size, self.len_series)).to(self.device)
+                with torch.no_grad():
+                    if self.model_selected == "UniTime":
+                        one_batch_reduce = self.model(one_batch, mask)
+                        another_batch_reduce = self.model(another_batch, mask)
+                    else:
+                        one_batch_reduce = self.model(one_batch)
+                        another_batch_reduce = self.model(another_batch)
 
                 err = self.loss_calculator(one_batch, another_batch, one_batch_reduce, another_batch_reduce)
                 errors.append(err.cpu())

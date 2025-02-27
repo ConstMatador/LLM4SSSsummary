@@ -23,3 +23,6 @@ mkdir example/UniTime/log
 mkdir example/UniTime/model
 mkdir example/UniTime/sample
 mkdir example/UniTime/save
+
+mkdir nnCoverage/data
+mkdir nnCoverage/result

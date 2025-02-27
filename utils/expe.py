@@ -4,8 +4,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import LambdaLR, ReduceLROnPlateau
-from torch.cuda.amp import autocast, GradScaler     # pyright:ignore
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.cuda.amp import GradScaler     # pyright:ignore
 
 from utils.conf import Configuration
 from utils.sample import getSamples
@@ -160,10 +160,9 @@ class Experiment:
         # mask: (batch_size, len_series)
         mask[mask < self.mask_rate] = 0  # masked
         mask[mask >= self.mask_rate] = 1  # remained
-        
-        return mask
         # mask: (batch_size, len_series)
-    
+        return mask
+        
             
     def train(self) -> None:
         logging.info(f'epoch: {self.epoch}, start training')

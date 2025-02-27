@@ -13,8 +13,8 @@
     "log_path": "./example/UniTime/log/example.log",
     "model_path": "./example/UniTime/model/",
 
-    "device": "cuda:4",
-    "GPUs": [4],
+    "device": "cuda:2",
+    "GPUs": [2],
 
     "llm_type": "gpt2",
     "llm_layers": 6,

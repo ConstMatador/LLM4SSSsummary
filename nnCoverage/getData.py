@@ -90,14 +90,18 @@ def main(argv):
         model = nn.DataParallel(model, device_ids=selected_devices).to(device)
         
     model.load_state_dict(torch.load(model_path))
-
-    len_series = conf.getEntry('len_series')
+    
+    if selected_model == "UniTime":
+            mask = torch.ones((1, len_series)).to(device)
     
     reduce_data = []
     i = 1
     for data in origin_data:
         with torch.no_grad():
-            data = model(data.unsqueeze(0).to(device)).cpu()
+            if selected_model == "UniTime":
+                data = model(data.unsqueeze(0).to(device), mask).cpu()
+            else:
+                data = model(data.unsqueeze(0).to(device)).cpu()
             data = data.reshape(-1).cpu().numpy()
         reduce_data.append(data)
         print(f"data {i} completed.")
@@ -111,7 +115,10 @@ def main(argv):
     i = 1
     for data in origin_query:
         with torch.no_grad():
-            data = model(data.unsqueeze(0).to(device))
+            if selected_model == "UniTime": 
+                data = model(data.unsqueeze(0).to(device), mask).cpu()
+            else:
+                data = model(data.unsqueeze(0).to(device))
             data = data.reshape(-1).cpu().numpy()
         reduce_query.append(data)
         print(f"query {i} completed.")

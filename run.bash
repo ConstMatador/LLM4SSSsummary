@@ -1,1 +1,1 @@
-nohup python LLM4SSSsummary_run.py -C conf/UniTime.json &
+nohup python LLM4SSSsummary_run.py -C conf/AutoTimes.json &

@@ -16,9 +16,6 @@ from model.UniTime import UniTime
 
 
 # configure
-selected_model = "AutoTimes"
-
-model_path = "./example/"+selected_model+"/save/200000train_human.pth"
 data_path = "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin"
 query_path = "../Data/SEAnet/data_250k_seed14784_len256_znorm.bin"
 
@@ -29,7 +26,7 @@ reduce_query_path = "./nnCoverage/data/reduce_query.bin"
 
 device = "cuda:6"
 selected_devices = [6]
-selected_model = "AutoTimes"
+model_selected = "AutoTimes"
 max_size = 1000000
 data_size = 20000
 query_size = 1000
@@ -43,7 +40,8 @@ def getTestData(data_path, data_size, query_size):
     
     origin_data = []
     for index in data_indices:
-        sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+        sequence = np.fromfile(data_path, dtype = np.float32,
+                               count = len_series, offset = 4 * len_series * index)
         if not np.isnan(np.sum(sequence)):
             origin_data.append(sequence)
             
@@ -52,7 +50,8 @@ def getTestData(data_path, data_size, query_size):
     
     origin_query = []
     for index in query_indices:
-        sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+        sequence = np.fromfile(data_path, dtype = np.float32,
+                               count = len_series, offset = 4 * len_series * index)
         if not np.isnan(np.sum(sequence)):
             origin_query.append(sequence)
             
@@ -74,16 +73,20 @@ def main(argv):
     parser.add_argument('-C', '--conf', type=str, required=True, dest='confpath', help='path of conf file')
     args = parser.parse_args(argv[1: ])
     conf = Configuration(args.confpath)
+    
+    model_selected = conf.getEntry("model_selected")
+
+    model_path = "./example/" + model_selected + "/save/200000train_human_200epoch.pth"
 
     origin_data, origin_query = getTestData(data_path, data_size, query_size)
 
-    if selected_model == "GPT4SSS":
+    if model_selected == "GPT4SSS":
         model = GPT4SSS(conf)
-    elif selected_model == "TimeLLM":
+    elif model_selected == "TimeLLM":
         model = TimeLLM(conf)
-    elif selected_model == "AutoTimes":
+    elif model_selected == "AutoTimes":
         model = AutoTimes(conf)
-    elif selected_model == "UniTime":
+    elif model_selected == "UniTime":
         model = UniTime(conf)
 
     if torch.cuda.device_count() > 1:
@@ -91,14 +94,14 @@ def main(argv):
         
     model.load_state_dict(torch.load(model_path))
     
-    if selected_model == "UniTime":
+    if model_selected == "UniTime":
             mask = torch.ones((1, len_series)).to(device)
     
     reduce_data = []
     i = 1
     for data in origin_data:
         with torch.no_grad():
-            if selected_model == "UniTime":
+            if model_selected == "UniTime":
                 data = model(data.unsqueeze(0).to(device), mask).cpu()
             else:
                 data = model(data.unsqueeze(0).to(device)).cpu()
@@ -115,7 +118,7 @@ def main(argv):
     i = 1
     for data in origin_query:
         with torch.no_grad():
-            if selected_model == "UniTime": 
+            if model_selected == "UniTime": 
                 data = model(data.unsqueeze(0).to(device), mask).cpu()
             else:
                 data = model(data.unsqueeze(0).to(device))

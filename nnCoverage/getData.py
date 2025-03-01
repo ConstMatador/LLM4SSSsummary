@@ -24,9 +24,9 @@ origin_query_path = "./nnCoverage/data/origin_query.bin"
 reduce_data_path = "./nnCoverage/data/reduce_data.bin"
 reduce_query_path = "./nnCoverage/data/reduce_query.bin"
 
-device = "cuda:6"
-selected_devices = [6]
-model_selected = "AutoTimes"
+device = "cuda:3"
+selected_devices = [3]
+
 max_size = 1000000
 data_size = 20000
 query_size = 1000
@@ -107,7 +107,8 @@ def main(argv):
                 data = model(data.unsqueeze(0).to(device)).cpu()
             data = data.reshape(-1).cpu().numpy()
         reduce_data.append(data)
-        print(f"data {i} completed.")
+        if i % 100 == 0:
+            print(f"data {i} completed.")
         i = i + 1
               
     reduce_data = np.array(reduce_data, dtype=np.float32)

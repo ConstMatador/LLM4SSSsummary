@@ -1,0 +1,248 @@
+2025-02-25 22:18:22,524 - INFO - Experiment Configuration:
+2025-02-25 22:18:22,525 - INFO - model_selected: TimeLLM
+2025-02-25 22:18:22,525 - INFO - conf_path: ./conf/TimeLLM.json
+2025-02-25 22:18:22,525 - INFO - data_path: ../Data/SEAnet/data_250M_seed1184_len256_znorm.bin
+2025-02-25 22:18:22,525 - INFO - llm_path: ../Model/
+2025-02-25 22:18:22,525 - INFO - train_path: ./example/TimeLLM/sample/train.bin
+2025-02-25 22:18:22,525 - INFO - val_path: ./example/TimeLLM/sample/val.bin
+2025-02-25 22:18:22,525 - INFO - test_path: ./example/TimeLLM/sample/test.bin
+2025-02-25 22:18:22,525 - INFO - train_indices_path: ./example/TimeLLM/sample/train_indices.bin
+2025-02-25 22:18:22,525 - INFO - val_indices_path: ./example/TimeLLM/sample/val_indices.bin
+2025-02-25 22:18:22,525 - INFO - test_indices_path: ./example/TimeLLM/sample/test_indices.bin
+2025-02-25 22:18:22,525 - INFO - log_path: ./example/TimeLLM/log/example.log
+2025-02-25 22:18:22,525 - INFO - model_path: ./example/TimeLLM/model/
+2025-02-25 22:18:22,525 - INFO - device: cuda:3
+2025-02-25 22:18:22,525 - INFO - GPUs: [3]
+2025-02-25 22:18:22,525 - INFO - llm_type: gpt2
+2025-02-25 22:18:22,525 - INFO - llm_layers: 6
+2025-02-25 22:18:22,525 - INFO - epoch_max: 100
+2025-02-25 22:18:22,525 - INFO - len_series: 256
+2025-02-25 22:18:22,525 - INFO - len_reduce: 16
+2025-02-25 22:18:22,525 - INFO - batch_size: 256
+2025-02-25 22:18:22,525 - INFO - data_size: 1000000
+2025-02-25 22:18:22,525 - INFO - train_size: 200000
+2025-02-25 22:18:22,525 - INFO - val_size: 10000
+2025-02-25 22:18:22,525 - INFO - test_size: 10000
+2025-02-25 22:18:22,525 - INFO - patch_len: 16
+2025-02-25 22:18:22,525 - INFO - stride: 8
+2025-02-25 22:18:22,525 - INFO - head_num: 8
+2025-02-25 22:18:22,525 - INFO - dim_model: 128
+2025-02-25 22:18:22,525 - INFO - dim_llm: 768
+2025-02-25 22:18:22,525 - INFO - dim_ff: 128
+2025-02-25 22:18:22,525 - INFO - reduced_vocab_size: 1000
+2025-02-25 22:18:22,525 - INFO - seq_overview: These sequences come from the salt dataset, with a sequence length of 256. We need to compress them into sequences of length 16 and try to keep the original sequence features.
+2025-02-25 22:18:22,525 - INFO - prompt_len: 256
+2025-02-25 22:18:22,525 - INFO - Model initializing...
+2025-02-25 22:18:22,536 - INFO - Using 1 GPUs
+2025-02-25 22:21:04,059 - INFO - epoch: 0, validate trans_err: 7.29583359
+2025-02-25 22:21:04,060 - INFO - epoch: 1, start training
+2025-02-25 23:20:16,303 - INFO - epoch: 1, validate trans_err: 0.22604239
+2025-02-25 23:20:16,355 - INFO - epoch: 2, start training
+2025-02-26 00:24:04,918 - INFO - epoch: 2, validate trans_err: 0.18264827
+2025-02-26 00:24:04,960 - INFO - epoch: 3, start training
+2025-02-26 01:26:31,316 - INFO - epoch: 3, validate trans_err: 0.17424336
+2025-02-26 01:26:31,459 - INFO - epoch: 4, start training
+2025-02-26 02:28:51,093 - INFO - epoch: 4, validate trans_err: 0.15570043
+2025-02-26 02:28:51,150 - INFO - epoch: 5, start training
+2025-02-26 03:34:18,333 - INFO - epoch: 5, validate trans_err: 0.15217617
+2025-02-26 03:34:18,386 - INFO - epoch: 6, start training
+2025-02-26 04:36:09,851 - INFO - epoch: 6, validate trans_err: 0.14626661
+2025-02-26 04:36:09,913 - INFO - epoch: 7, start training
+2025-02-26 05:39:07,422 - INFO - epoch: 7, validate trans_err: 0.14121976
+2025-02-26 05:39:07,480 - INFO - epoch: 8, start training
+2025-02-26 06:42:34,100 - INFO - epoch: 8, validate trans_err: 0.13742161
+2025-02-26 06:42:34,158 - INFO - epoch: 9, start training
+2025-02-26 07:45:06,487 - INFO - epoch: 9, validate trans_err: 0.13470657
+2025-02-26 07:45:06,557 - INFO - epoch: 10, start training
+2025-02-26 08:46:40,859 - INFO - epoch: 10, validate trans_err: 0.13071287
+2025-02-26 08:46:42,253 - INFO - Model in epoch: 10 saved successfully.
+2025-02-26 08:46:42,294 - INFO - epoch: 11, start training
+2025-02-26 09:49:36,961 - INFO - epoch: 11, validate trans_err: 0.13122711
+2025-02-26 09:49:37,018 - INFO - epoch: 12, start training
+2025-02-26 10:50:43,686 - INFO - epoch: 12, validate trans_err: 0.12718701
+2025-02-26 10:50:43,728 - INFO - epoch: 13, start training
+2025-02-26 11:48:51,503 - INFO - epoch: 13, validate trans_err: 0.12562391
+2025-02-26 11:48:51,563 - INFO - epoch: 14, start training
+2025-02-26 12:48:55,242 - INFO - epoch: 14, validate trans_err: 0.12063289
+2025-02-26 12:48:55,296 - INFO - epoch: 15, start training
+2025-02-26 13:53:28,436 - INFO - epoch: 15, validate trans_err: 0.12090800
+2025-02-26 13:53:28,513 - INFO - epoch: 16, start training
+2025-02-26 14:58:20,734 - INFO - epoch: 16, validate trans_err: 0.11554851
+2025-02-26 14:58:20,813 - INFO - epoch: 17, start training
+2025-02-26 16:06:33,036 - INFO - epoch: 17, validate trans_err: 0.11238097
+2025-02-26 16:06:33,094 - INFO - epoch: 18, start training
+2025-02-26 17:13:03,856 - INFO - epoch: 18, validate trans_err: 0.11622152
+2025-02-26 17:13:03,965 - INFO - epoch: 19, start training
+2025-02-26 18:15:18,458 - INFO - epoch: 19, validate trans_err: 0.11177842
+2025-02-26 18:15:18,516 - INFO - epoch: 20, start training
+2025-02-26 19:18:42,935 - INFO - epoch: 20, validate trans_err: 0.11369754
+2025-02-26 19:18:44,751 - INFO - Model in epoch: 20 saved successfully.
+2025-02-26 19:18:44,800 - INFO - epoch: 21, start training
+2025-02-26 20:23:45,615 - INFO - epoch: 21, validate trans_err: 0.11170025
+2025-02-26 20:23:45,682 - INFO - epoch: 22, start training
+2025-02-26 21:24:37,083 - INFO - epoch: 22, validate trans_err: 0.11134628
+2025-02-26 21:24:37,142 - INFO - epoch: 23, start training
+2025-02-26 22:28:21,734 - INFO - epoch: 23, validate trans_err: 0.11058591
+2025-02-26 22:28:21,814 - INFO - epoch: 24, start training
+2025-02-26 23:29:51,086 - INFO - epoch: 24, validate trans_err: 0.10860854
+2025-02-26 23:29:51,145 - INFO - epoch: 25, start training
+2025-02-27 00:32:10,256 - INFO - epoch: 25, validate trans_err: 0.10708350
+2025-02-27 00:32:10,327 - INFO - epoch: 26, start training
+2025-02-27 01:35:42,608 - INFO - epoch: 26, validate trans_err: 0.10519576
+2025-02-27 01:35:42,667 - INFO - epoch: 27, start training
+2025-02-27 02:39:56,691 - INFO - epoch: 27, validate trans_err: 0.10523410
+2025-02-27 02:39:56,755 - INFO - epoch: 28, start training
+2025-02-27 03:45:32,626 - INFO - epoch: 28, validate trans_err: 0.10501246
+2025-02-27 03:45:32,666 - INFO - epoch: 29, start training
+2025-02-27 04:51:38,250 - INFO - epoch: 29, validate trans_err: 0.10297191
+2025-02-27 04:51:38,310 - INFO - epoch: 30, start training
+2025-02-27 05:55:16,305 - INFO - epoch: 30, validate trans_err: 0.10389141
+2025-02-27 05:55:17,592 - INFO - Model in epoch: 30 saved successfully.
+2025-02-27 05:55:17,634 - INFO - epoch: 31, start training
+2025-02-27 06:55:08,681 - INFO - epoch: 31, validate trans_err: 0.10218556
+2025-02-27 06:55:08,738 - INFO - epoch: 32, start training
+2025-02-27 07:53:20,738 - INFO - epoch: 32, validate trans_err: 0.10234068
+2025-02-27 07:53:20,779 - INFO - epoch: 33, start training
+2025-02-27 08:51:08,709 - INFO - epoch: 33, validate trans_err: 0.10127030
+2025-02-27 08:51:08,750 - INFO - epoch: 34, start training
+2025-02-27 09:49:53,787 - INFO - epoch: 34, validate trans_err: 0.10030995
+2025-02-27 09:49:53,828 - INFO - epoch: 35, start training
+2025-02-27 10:47:13,291 - INFO - epoch: 35, validate trans_err: 0.10615058
+2025-02-27 10:47:13,332 - INFO - epoch: 36, start training
+2025-02-27 11:39:57,671 - INFO - epoch: 36, validate trans_err: 0.10127781
+2025-02-27 11:39:57,712 - INFO - epoch: 37, start training
+2025-02-27 12:21:13,986 - INFO - epoch: 37, validate trans_err: 0.10518599
+2025-02-27 12:21:14,027 - INFO - epoch: 38, start training
+2025-02-27 13:02:34,936 - INFO - epoch: 38, validate trans_err: 0.09844039
+2025-02-27 13:02:34,995 - INFO - epoch: 39, start training
+2025-02-27 13:46:08,851 - INFO - epoch: 39, validate trans_err: 0.10081194
+2025-02-27 13:46:08,892 - INFO - epoch: 40, start training
+2025-02-27 14:25:59,543 - INFO - epoch: 40, validate trans_err: 0.10053229
+2025-02-27 14:26:00,667 - INFO - Model in epoch: 40 saved successfully.
+2025-02-27 14:26:00,708 - INFO - epoch: 41, start training
+2025-02-27 15:06:18,750 - INFO - epoch: 41, validate trans_err: 0.10051095
+2025-02-27 15:06:18,791 - INFO - epoch: 42, start training
+2025-02-27 15:46:39,101 - INFO - epoch: 42, validate trans_err: 0.09980617
+2025-02-27 15:46:39,143 - INFO - epoch: 43, start training
+2025-02-27 16:27:13,695 - INFO - epoch: 43, validate trans_err: 0.09926053
+2025-02-27 16:27:13,737 - INFO - epoch: 44, start training
+2025-02-27 17:09:11,642 - INFO - epoch: 44, validate trans_err: 0.09637965
+2025-02-27 17:09:11,683 - INFO - epoch: 45, start training
+2025-02-27 17:51:07,012 - INFO - epoch: 45, validate trans_err: 0.09985752
+2025-02-27 17:51:07,053 - INFO - epoch: 46, start training
+2025-02-27 18:32:49,853 - INFO - epoch: 46, validate trans_err: 0.10053986
+2025-02-27 18:32:49,895 - INFO - epoch: 47, start training
+2025-02-27 19:14:42,469 - INFO - epoch: 47, validate trans_err: 0.09882369
+2025-02-27 19:14:42,511 - INFO - epoch: 48, start training
+2025-02-27 19:56:23,985 - INFO - epoch: 48, validate trans_err: 0.09838461
+2025-02-27 19:56:24,026 - INFO - epoch: 49, start training
+2025-02-27 20:38:26,639 - INFO - epoch: 49, validate trans_err: 0.09817725
+2025-02-27 20:38:26,695 - INFO - epoch: 50, start training
+2025-02-27 21:19:44,459 - INFO - epoch: 50, validate trans_err: 0.09682338
+2025-02-27 21:19:45,706 - INFO - Model in epoch: 50 saved successfully.
+2025-02-27 21:19:45,765 - INFO - epoch: 51, start training
+2025-02-27 22:06:03,670 - INFO - epoch: 51, validate trans_err: 0.09626143
+2025-02-27 22:06:03,714 - INFO - epoch: 52, start training
+2025-02-27 22:57:57,338 - INFO - epoch: 52, validate trans_err: 0.09579343
+2025-02-27 22:57:57,405 - INFO - epoch: 53, start training
+2025-02-27 23:39:06,923 - INFO - epoch: 53, validate trans_err: 0.09601188
+2025-02-27 23:39:06,969 - INFO - epoch: 54, start training
+2025-02-28 00:24:33,269 - INFO - epoch: 54, validate trans_err: 0.09678082
+2025-02-28 00:24:33,361 - INFO - epoch: 55, start training
+2025-02-28 01:09:03,376 - INFO - epoch: 55, validate trans_err: 0.09550724
+2025-02-28 01:09:03,456 - INFO - epoch: 56, start training
+2025-02-28 01:54:05,374 - INFO - epoch: 56, validate trans_err: 0.09358422
+2025-02-28 01:54:05,452 - INFO - epoch: 57, start training
+2025-02-28 02:36:45,513 - INFO - epoch: 57, validate trans_err: 0.09820862
+2025-02-28 02:36:45,577 - INFO - epoch: 58, start training
+2025-02-28 03:17:28,037 - INFO - epoch: 58, validate trans_err: 0.09421222
+2025-02-28 03:17:28,079 - INFO - epoch: 59, start training
+2025-02-28 03:59:37,219 - INFO - epoch: 59, validate trans_err: 0.09443066
+2025-02-28 03:59:37,261 - INFO - epoch: 60, start training
+2025-02-28 04:41:28,132 - INFO - epoch: 60, validate trans_err: 0.09451847
+2025-02-28 04:41:29,297 - INFO - Model in epoch: 60 saved successfully.
+2025-02-28 04:41:29,338 - INFO - epoch: 61, start training
+2025-02-28 05:22:28,141 - INFO - epoch: 61, validate trans_err: 0.09659886
+2025-02-28 05:22:28,181 - INFO - epoch: 62, start training
+2025-02-28 06:04:24,535 - INFO - epoch: 62, validate trans_err: 0.09658217
+2025-02-28 06:04:24,575 - INFO - epoch: 63, start training
+2025-02-28 06:45:45,700 - INFO - epoch: 63, validate trans_err: 0.09390221
+2025-02-28 06:45:45,741 - INFO - epoch: 64, start training
+2025-02-28 07:27:24,689 - INFO - epoch: 64, validate trans_err: 0.09270456
+2025-02-28 07:27:24,732 - INFO - epoch: 65, start training
+2025-02-28 08:08:53,583 - INFO - epoch: 65, validate trans_err: 0.09358119
+2025-02-28 08:08:53,624 - INFO - epoch: 66, start training
+2025-02-28 08:51:42,414 - INFO - epoch: 66, validate trans_err: 0.09422426
+2025-02-28 08:51:42,481 - INFO - epoch: 67, start training
+2025-02-28 09:38:45,479 - INFO - epoch: 67, validate trans_err: 0.09261771
+2025-02-28 09:38:45,520 - INFO - epoch: 68, start training
+2025-02-28 10:24:04,305 - INFO - epoch: 68, validate trans_err: 0.09418376
+2025-02-28 10:24:04,363 - INFO - epoch: 69, start training
+2025-02-28 11:12:38,870 - INFO - epoch: 69, validate trans_err: 0.09336639
+2025-02-28 11:12:38,964 - INFO - epoch: 70, start training
+2025-02-28 12:04:10,355 - INFO - epoch: 70, validate trans_err: 0.09278048
+2025-02-28 12:04:12,203 - INFO - Model in epoch: 70 saved successfully.
+2025-02-28 12:04:12,261 - INFO - epoch: 71, start training
+2025-02-28 12:56:12,054 - INFO - epoch: 71, validate trans_err: 0.09286960
+2025-02-28 12:56:12,111 - INFO - epoch: 72, start training
+2025-02-28 13:40:27,736 - INFO - epoch: 72, validate trans_err: 0.09227211
+2025-02-28 13:40:27,793 - INFO - epoch: 73, start training
+2025-02-28 14:23:35,676 - INFO - epoch: 73, validate trans_err: 0.09051444
+2025-02-28 14:23:35,733 - INFO - epoch: 74, start training
+2025-02-28 15:07:30,015 - INFO - epoch: 74, validate trans_err: 0.09410503
+2025-02-28 15:07:30,072 - INFO - epoch: 75, start training
+2025-02-28 15:50:26,337 - INFO - epoch: 75, validate trans_err: 0.09366152
+2025-02-28 15:50:26,382 - INFO - epoch: 76, start training
+2025-02-28 16:34:13,953 - INFO - epoch: 76, validate trans_err: 0.09434027
+2025-02-28 16:34:14,010 - INFO - epoch: 77, start training
+2025-02-28 17:17:50,609 - INFO - epoch: 77, validate trans_err: 0.09204309
+2025-02-28 17:17:50,658 - INFO - epoch: 78, start training
+2025-02-28 17:59:24,085 - INFO - epoch: 78, validate trans_err: 0.09328283
+2025-02-28 17:59:24,143 - INFO - epoch: 79, start training
+2025-02-28 18:42:28,799 - INFO - epoch: 79, validate trans_err: 0.09206273
+2025-02-28 18:42:28,840 - INFO - epoch: 80, start training
+2025-02-28 19:25:43,600 - INFO - epoch: 80, validate trans_err: 0.09262938
+2025-02-28 19:25:44,855 - INFO - Model in epoch: 80 saved successfully.
+2025-02-28 19:25:44,911 - INFO - epoch: 81, start training
+2025-02-28 20:08:00,575 - INFO - epoch: 81, validate trans_err: 0.09368885
+2025-02-28 20:08:00,618 - INFO - epoch: 82, start training
+2025-02-28 20:50:08,097 - INFO - epoch: 82, validate trans_err: 0.09181494
+2025-02-28 20:50:08,148 - INFO - epoch: 83, start training
+2025-02-28 21:34:31,974 - INFO - epoch: 83, validate trans_err: 0.09224024
+2025-02-28 21:34:32,033 - INFO - epoch: 84, start training
+2025-02-28 22:17:47,461 - INFO - epoch: 84, validate trans_err: 0.09030621
+2025-02-28 22:17:47,505 - INFO - epoch: 85, start training
+2025-02-28 22:59:54,980 - INFO - epoch: 85, validate trans_err: 0.09349031
+2025-02-28 22:59:55,021 - INFO - epoch: 86, start training
+2025-02-28 23:41:05,541 - INFO - epoch: 86, validate trans_err: 0.09156048
+2025-02-28 23:41:05,583 - INFO - epoch: 87, start training
+2025-03-01 00:23:14,125 - INFO - epoch: 87, validate trans_err: 0.09223075
+2025-03-01 00:23:14,166 - INFO - epoch: 88, start training
+2025-03-01 01:05:23,824 - INFO - epoch: 88, validate trans_err: 0.09339125
+2025-03-01 01:05:23,881 - INFO - epoch: 89, start training
+2025-03-01 01:46:44,695 - INFO - epoch: 89, validate trans_err: 0.09269617
+2025-03-01 01:46:44,736 - INFO - epoch: 90, start training
+2025-03-01 02:27:15,638 - INFO - epoch: 90, validate trans_err: 0.09265722
+2025-03-01 02:27:16,956 - INFO - Model in epoch: 90 saved successfully.
+2025-03-01 02:27:16,997 - INFO - epoch: 91, start training
+2025-03-01 03:06:45,849 - INFO - epoch: 91, validate trans_err: 0.09153464
+2025-03-01 03:06:45,893 - INFO - epoch: 92, start training
+2025-03-01 03:46:06,528 - INFO - epoch: 92, validate trans_err: 0.09191436
+2025-03-01 03:46:06,568 - INFO - epoch: 93, start training
+2025-03-01 04:25:33,947 - INFO - epoch: 93, validate trans_err: 0.09371091
+2025-03-01 04:25:33,988 - INFO - epoch: 94, start training
+2025-03-01 05:05:04,237 - INFO - epoch: 94, validate trans_err: 0.09185688
+2025-03-01 05:05:04,278 - INFO - epoch: 95, start training
+2025-03-01 05:44:27,644 - INFO - epoch: 95, validate trans_err: 0.09092633
+2025-03-01 05:44:27,685 - INFO - epoch: 96, start training
+2025-03-01 06:23:41,457 - INFO - epoch: 96, validate trans_err: 0.09150399
+2025-03-01 06:23:41,498 - INFO - epoch: 97, start training
+2025-03-01 07:03:06,283 - INFO - epoch: 97, validate trans_err: 0.09158752
+2025-03-01 07:03:06,377 - INFO - epoch: 98, start training
+2025-03-01 07:42:34,410 - INFO - epoch: 98, validate trans_err: 0.09258202
+2025-03-01 07:42:34,452 - INFO - epoch: 99, start training
+2025-03-01 08:21:39,848 - INFO - epoch: 99, validate trans_err: 0.08985554
+2025-03-01 08:21:39,890 - INFO - epoch: 100, start training
+2025-03-01 09:00:41,900 - INFO - epoch: 100, validate trans_err: 0.09115960
+2025-03-01 09:00:43,110 - INFO - Model in epoch: 100 saved successfully.
+2025-03-01 09:02:32,547 - INFO - test trans_err: 0.09236056

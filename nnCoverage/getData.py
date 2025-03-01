@@ -76,7 +76,7 @@ def main(argv):
     
     model_selected = conf.getEntry("model_selected")
 
-    model_path = "./example/" + model_selected + "/save/200000train_human_200epoch.pth"
+    model_path = "./example/" + model_selected + "/save/200000train_human.pth"
 
     origin_data, origin_query = getTestData(data_path, data_size, query_size)
 

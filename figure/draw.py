@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-selected_model = "AutoTimes200"
+selected_model = "GPT4SSS"
 
 # File Path
 file_path = f"figure/error/{selected_model}.txt"

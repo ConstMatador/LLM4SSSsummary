@@ -1,6 +1,6 @@
 import os
 
-selected_model = "AutoTimes200"
+selected_model = "GPT4SSS"
 
 log_path = f"figure/log/{selected_model}.log"
 save_path = f"figure/error/{selected_model}.txt"

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-selected_model = "TimeLLM"
+selected_model = "AutoTimes200"
 
 # File Path
 file_path = f"figure/error/{selected_model}.txt"

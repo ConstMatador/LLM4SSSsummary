@@ -16,6 +16,7 @@ from model.GPT4SSS import GPT4SSS
 from model.TimeLLM import TimeLLM
 from model.AutoTimes import AutoTimes
 from model.UniTime import UniTime
+from model.S2IPLLM import S2IPLLM
 
 
 class Experiment:
@@ -89,6 +90,8 @@ class Experiment:
             self.model = AutoTimes(self.conf).to(self.device)
         elif model_selected == "UniTime":
             self.model = UniTime(self.conf).to(self.device)
+        elif model_selected == "S2IPLLM":
+            self.model = S2IPLLM(self.conf).to(self.device)
         
         logging.info("Experiment Configuration:")
         for key, value in self.conf.confLoaded.items():

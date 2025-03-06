@@ -25,7 +25,7 @@
     "epoch_max": 100,
     "len_series": 256,
     "len_reduce": 16,
-    "batch_size": 512,
+    "batch_size": 768,
     
     "data_size": 1000000,
     "train_size":200000,

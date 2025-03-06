@@ -5,7 +5,7 @@ from utils.conf import Configuration
 
 
 class Prompt(nn.Module):
-    def __init__(self, conf:Configuration, wpe):
+    def __init__(self, conf:Configuration, wte):
         super(Prompt, self).__init__()
         
         self.conf = conf
@@ -15,7 +15,7 @@ class Prompt(nn.Module):
         self.prompt_key_init = conf.getEntry('prompt_key_init')
         self.embedding_key = conf.getEntry('embedding_key')
         self.top_k = conf.getEntry('top_k')
-        self.wpe = wpe
+        self.wte = wte
         
         prompt_key_shape = (self.pool_size, self.dim_llm)
         if self.prompt_key_init == 'zero':
@@ -27,7 +27,7 @@ class Prompt(nn.Module):
             self.prompt = nn.Parameter(torch.randn(prompt_key_shape),requires_grad=False)
             nn.init.normal_(self.prompt, mean=0.0, std=5.0)
         elif self.prompt_key_init == 'text_prototype':
-            self.text_prototype_linear = nn.Linear(wpe.shape[0], self.pool_size)
+            self.text_prototype_linear = nn.Linear(wte.shape[0], self.pool_size)
         # prompt:[pool_size, dim_llm]
 
         

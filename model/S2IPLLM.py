@@ -43,7 +43,7 @@ class S2IPLLM(nn.Module):
         elif self.llm_type == 'llama7b':
             self.llm = llamaModel.from_pretrained(self.llm_pos).to(self.device)  # pyright: ignore
             
-        for _, (name, param) in enumerate(self.llm_model.named_parameters()):
+        for _, (name, param) in enumerate(self.llm.named_parameters()):
             if 'ln' in name or 'wpe' in name:
                 param.requires_grad = True
                 logging.info(f'{name}')
@@ -77,14 +77,15 @@ class S2IPLLM(nn.Module):
         x = np.apply_along_axis(decompose, 1, x.cpu().numpy())
         # x:[batch_size, len_series, 3]
         x = torch.tensor(x).to(self.device)
+        x = x.reshape(-1, self.len_series, 3)
         # x:[batch_size, len_series, 3]
         x = rearrange(x, 'b l c -> b c l')
         # x:[batch_size, 3, len_series]
-        x = x.unfold(demension=-1, size=self.win_size, step=self.stride)
+        x = x.unfold(dimension=-1, size=self.win_size, step=self.stride)
         # x:[batch_size, 3, win_num, win_size]
         x = rearrange(x, 'b c n s -> b n (s c)')
         # x:[batch_size, win_num, win_size*3]
-        x = self.inlayer(x)
+        x = self.inlayer(x.float())
         # x:[batch_size, win_num, dim_llm]
         outs = self.prompt_pool(x)
         prompted_embedding = outs['prompted_embedding']

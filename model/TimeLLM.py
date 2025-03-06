@@ -2,13 +2,14 @@ from utils.conf import Configuration
 from utils.patching import Patching
 from utils.patching import calculate_patch_num
 from utils.mapping import Mapping
-import logging
 
 import torch
 from torch import nn
 from transformers import LlamaModel, LlamaTokenizer, LlamaConfig
 from transformers import BertModel, BertTokenizer, BertConfig
 from transformers import GPT2Model, GPT2Tokenizer, GPT2Config
+import logging
+
 
 class TimeLLM(nn.Module):
     def __init__(self, conf: Configuration):

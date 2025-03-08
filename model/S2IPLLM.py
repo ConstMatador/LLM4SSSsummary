@@ -10,6 +10,7 @@ import logging
 
 from utils.conf import Configuration
 from model.prompt import Prompt
+from model.mlp import MLP
 
 
 class S2IPLLM(nn.Module):
@@ -33,33 +34,51 @@ class S2IPLLM(nn.Module):
         
         self.trend_len = conf.getEntry('trend_len')
         self.seasonal_len = conf.getEntry('seasonal_len')
-        
         self.top_k = conf.getEntry('top_k')
+        
+        self.encoder_type = conf.getEntry('encoder_type')
+        self.decoder_type = conf.getEntry('decoder_type')
+
+        self.mlp_layers = conf.getEntry('mlp_layers')
+        self.mlp_dim = conf.getEntry('mlp_dim')
+        self.activation = conf.getEntry('activation')
+        self.dropout = conf.getEntry('dropout')
 
         if self.llm_type == 'gpt2':
             self.llm = GPT2Model.from_pretrained(self.llm_pos).to(self.device)  # pyright: ignore
         elif self.llm_type == 'bert':
             self.llm = BertModel.from_pretrained(self.llm_pos).to(self.device)  # pyright: ignore
         elif self.llm_type == 'llama7b':
-            self.llm = llamaModel.from_pretrained(self.llm_pos).to(self.device)  # pyright: ignore
+            self.llm = LlamaModel.from_pretrained(self.llm_pos).to(self.device)  # pyright: ignore
             
         for _, (name, param) in enumerate(self.llm.named_parameters()):
             if 'ln' in name or 'wpe' in name:
                 param.requires_grad = True
                 logging.info(f'{name}')
             else:
-                param.requires_grad = False    
+                param.requires_grad = False
             
         self.win_num = (self.len_series - self.win_size) // self.stride + 1
         
-        self.inlayer = nn.Linear(self.win_size*3, self.dim_llm)
+        if self.encoder_type == 'linear':
+            self.inlayer = nn.Linear(self.win_size*3, self.dim_llm)
+        elif self.decoder_type == 'mlp':
+            self.inlayer = MLP(self.win_size*3, self.dim_llm, self.mlp_dim,self.mlp_layers, self.activation, self.dropout)
         
         self.prompt_pool = Prompt(self.conf, self.llm.wte.weight)
         
-        self.flatten = nn.Flatten(start_dim=-2)
-        
-        self.outlayer = nn.Linear((self.win_num + self.top_k) * self.dim_llm, self.len_reduce)
-        
+        if self.decoder_type == 'linear':
+            self.flatten = nn.Flatten(start_dim=-2)
+            self.outlayer = nn.Sequential(self.flatten, nn.Linear(self.win_num*self.dim_llm, self.len_reduce))
+        elif self.decoder_type == 'mlp':
+            self.mlp = MLP(self.dim_llm, self.win_size, self.mlp_dim, self.mlp_layers, self.activation, self.dropout)
+            # x: [batch_size, win_num, win_size]
+            self.flatten = nn.Flatten(start_dim=-2)
+            # x: [batch_size, win_num * win_size = len_series]
+            self.projection = nn.Linear(self.win_num * self.win_size, self.len_reduce)
+            # x: [batch_size, len_reduce]
+            self.outlayer = nn.Sequential(self.mlp, self.flatten, self.projection)
+            
 
     def forward(self, x):
         # x:[batch_size, len_series]
@@ -89,11 +108,12 @@ class S2IPLLM(nn.Module):
         # x:[batch_size, win_num, dim_llm]
         outs = self.prompt_pool(x)
         prompted_embedding = outs['prompted_embedding']
-        # prompted_embedding:[batch_size, win_num + top_k, dim_llm]
+        # prompted_embedding:[batch_size, top_k + win_num, dim_llm]
         output_embedding = self.llm(inputs_embeds = prompted_embedding).last_hidden_state
-        # output_embedding:[batch_size, win_num + top_k, dim_llm]
-        x = self.flatten(output_embedding)
-        # x:[batch_size, (win_num + top_k)*dim_llm]
+        # output_embedding:[batch_size, top_k + win_num, dim_llm]
+        x = output_embedding[:, -self.win_num:, :]
+        # x:[batch_size, win_num, dim_llm]
         x = self.outlayer(x)
         # x:[batch_size, len_reduce]
+        
         return x

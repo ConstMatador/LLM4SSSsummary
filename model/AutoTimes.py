@@ -50,8 +50,10 @@ class AutoTimes(nn.Module):
         elif self.conf.getEntry('activation') == 'leakyrelu':
             self.activation = nn.LeakyReLU()
 
-        self.encoder = MLP(self.win_size, self.dim_llm, self.mlp_dim, self.mlp_layers, self.activation, self.dropout)
-        self.decoder = MLP(self.dim_llm, self.win_size, self.mlp_dim, self.mlp_layers, self.activation, self.dropout)
+        self.encoder = MLP(self.win_size, self.dim_llm, self.mlp_dim,
+                           self.mlp_layers, self.activation, self.dropout)
+        self.decoder = MLP(self.dim_llm, self.win_size, self.mlp_dim,
+                           self.mlp_layers, self.activation, self.dropout)
 
         self.projection = nn.Linear(self.len_series, self.len_reduce)
         

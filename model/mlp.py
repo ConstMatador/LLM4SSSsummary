@@ -1,8 +1,6 @@
 import torch
 from torch import nn
 
-from utils.conf import Configuration
-
 
 class MLP(nn.Module):
     def __init__(self, dim_in, dim_out, hidden_dim, num_layers, activation, dropout=0.0):

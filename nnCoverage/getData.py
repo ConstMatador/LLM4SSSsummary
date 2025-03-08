@@ -13,6 +13,7 @@ from model.GPT4SSS import GPT4SSS
 from model.TimeLLM import TimeLLM
 from model.AutoTimes import AutoTimes
 from model.UniTime import UniTime
+from model.S2IPLLM import S2IPLLM
 
 
 # configure
@@ -23,9 +24,6 @@ origin_data_path = "./nnCoverage/data/origin_data.bin"
 origin_query_path = "./nnCoverage/data/origin_query.bin"
 reduce_data_path = "./nnCoverage/data/reduce_data.bin"
 reduce_query_path = "./nnCoverage/data/reduce_query.bin"
-
-device = "cuda:3"
-selected_devices = [3]
 
 max_size = 1000000
 data_size = 20000
@@ -75,6 +73,8 @@ def main(argv):
     conf = Configuration(args.confpath)
     
     model_selected = conf.getEntry("model_selected")
+    device = conf.getEntry("device")
+    selected_devices = conf.getEntry("GPUs")
 
     model_path = "./example/" + model_selected + "/save/200000train_human.pth"
 
@@ -88,6 +88,8 @@ def main(argv):
         model = AutoTimes(conf)
     elif model_selected == "UniTime":
         model = UniTime(conf)
+    elif model_selected == "S2IPLLM":
+        model = S2IPLLM(conf)
 
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model, device_ids=selected_devices).to(device)

@@ -25,7 +25,7 @@
     "epoch_max": 100,
     "len_series": 256,
     "len_reduce": 16,
-    "batch_size": 768,
+    "batch_size": 1536,
     
     "data_size": 1000000,
     "train_size":200000,
@@ -40,10 +40,10 @@
     "pool_size": 1000,
     "prompt_key_init": "text_prototype",
     "embedding_key": "mean",
-    "top_k": 16,
+    "top_k": 8,
 
     "encoder_type": "mlp",
-    "decoder_type": "linear",
+    "decoder_type": "mlp",
     "mlp_layers": 2,
     "mlp_dim": 512,
     "activation":"tanh",

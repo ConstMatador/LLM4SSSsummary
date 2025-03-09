@@ -8,7 +8,6 @@ root_dir = "/mnt/data/user_liangzhiyu/wangzhongzheng/LLM4SSSsummary/"
 sys.path.append(root_dir)
 
 from utils.conf import Configuration
-
 from model.GPT4SSS import GPT4SSS
 from model.TimeLLM import TimeLLM
 from model.AutoTimes import AutoTimes
@@ -76,7 +75,7 @@ def main(argv):
     device = conf.getEntry("device")
     selected_devices = conf.getEntry("GPUs")
 
-    model_path = "./example/" + model_selected + "/save/200000train_human.pth"
+    model_path = "./example/" + model_selected + "/save/200000train_human_mlp.pth"
 
     origin_data, origin_query = getTestData(data_path, data_size, query_size)
 

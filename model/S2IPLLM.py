@@ -62,7 +62,7 @@ class S2IPLLM(nn.Module):
         
         if self.encoder_type == 'linear':
             self.inlayer = nn.Linear(self.win_size*3, self.dim_llm)
-        elif self.decoder_type == 'mlp':
+        elif self.encoder_type == 'mlp':
             self.inlayer = MLP(self.win_size*3, self.dim_llm, self.mlp_dim,self.mlp_layers, self.activation, self.dropout)
         
         self.prompt_pool = Prompt(self.conf, self.llm.wte.weight)
@@ -103,7 +103,7 @@ class S2IPLLM(nn.Module):
         x = x.unfold(dimension=-1, size=self.win_size, step=self.stride)
         # x:[batch_size, 3, win_num, win_size]
         x = rearrange(x, 'b c n s -> b n (s c)')
-        # x:[batch_size, win_num, win_size*3]
+        # x:[batch_size, win_num, win_size * 3]
         x = self.inlayer(x.float())
         # x:[batch_size, win_num, dim_llm]
         outs = self.prompt_pool(x)
@@ -115,5 +115,4 @@ class S2IPLLM(nn.Module):
         # x:[batch_size, win_num, dim_llm]
         x = self.outlayer(x)
         # x:[batch_size, len_reduce]
-        
         return x

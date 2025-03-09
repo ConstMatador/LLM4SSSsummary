@@ -14,7 +14,7 @@
     "model_path": "./example/S2IPLLM/model/",
 
     "device": "cuda:4",
-    "GPUs": [4],
+    "GPUs": [4, 5],
 
     "llm_type": "gpt2",
     "llm_layers": 6,
@@ -42,7 +42,7 @@
     "embedding_key": "mean",
     "top_k": 8,
 
-    "encoder_type": "mlp",
+    "encoder_type": "linear",
     "decoder_type": "linear",
     "mlp_layers": 2,
     "mlp_dim": 512,

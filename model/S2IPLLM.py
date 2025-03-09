@@ -19,6 +19,7 @@ class S2IPLLM(nn.Module):
         
         self.conf = conf
         self.device = self.conf.getEntry('device')
+        self.selected_device = self.conf.getEntry("GPUs")
         self.batch_size = self.conf.getEntry('batch_size')
         self.llm_path = self.conf.getEntry('llm_path')
         self.llm_type = self.conf.getEntry('llm_type')
@@ -41,7 +42,6 @@ class S2IPLLM(nn.Module):
 
         self.mlp_layers = conf.getEntry('mlp_layers')
         self.mlp_dim = conf.getEntry('mlp_dim')
-        self.activation = conf.getEntry('activation')
         self.dropout = conf.getEntry('dropout')
 
         if self.llm_type == 'gpt2':
@@ -59,6 +59,15 @@ class S2IPLLM(nn.Module):
                 param.requires_grad = False
             
         self.win_num = (self.len_series - self.win_size) // self.stride + 1
+        
+        if self.conf.getEntry('activation') == 'relu':
+            self.activation = nn.ReLU()
+        elif self.conf.getEntry('activation') == 'tanh':
+            self.activation = nn.Tanh()
+        elif self.conf.getEntry('activation') == 'sigmoid':
+            self.activation = nn.Sigmoid()
+        elif self.conf.getEntry('activation') == 'leakyrelu':
+            self.activation = nn.LeakyReLU()
         
         if self.encoder_type == 'linear':
             self.inlayer = nn.Linear(self.win_size*3, self.dim_llm)
@@ -93,9 +102,10 @@ class S2IPLLM(nn.Module):
             combined = np.stack([trend, seasonal, residuals], axis=1)
             return combined
         
+        current_device = x.device   # save current device
         x = np.apply_along_axis(decompose, 1, x.cpu().numpy())
         # x:[batch_size, len_series, 3]
-        x = torch.tensor(x).to(self.device)
+        x = torch.tensor(x).to(current_device)
         x = x.reshape(-1, self.len_series, 3)
         # x:[batch_size, len_series, 3]
         x = rearrange(x, 'b l c -> b c l')

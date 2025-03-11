@@ -52,7 +52,7 @@ class Experiment:
             self.validate()
             
             if self.epoch % 10 == 0:
-                torch.save(self.model.state_dict(), f"{self.model_path}example_model.pth")
+                torch.save(self.model.module.state_dict(), f"{self.model_path}example_model.pth")
                 logging.info(f"Model in epoch: {self.epoch} saved successfully.")
             
             torch.cuda.empty_cache()
@@ -228,7 +228,7 @@ class Experiment:
                 errors.append(err.cpu())
                 
         avg_error = torch.mean(torch.stack(errors)).item()
-        logging.info(f'epoch: {self.epoch}, validate trans_err: {avg_error:.8f}')
+        logging.info(f'epoch: {self.epoch}, validate trans_err: {avg_error:.6f}')
         
         self.scheduler.step(avg_error)
     
@@ -255,4 +255,4 @@ class Experiment:
                 errors.append(err.cpu())
 
         avg_error = torch.mean(torch.stack(errors)).item()
-        logging.info(f'test trans_err: {avg_error:.8f}')
+        logging.info(f'test trans_err: {avg_error:.6f}')

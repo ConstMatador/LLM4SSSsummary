@@ -56,10 +56,6 @@ def getTestData(data_path, data_size, query_size):
     origin_query.tofile(origin_query_path)
     
     origin_data, origin_query = torch.from_numpy(origin_data), torch.from_numpy(origin_query)
-    
-    # origin_data = np.fromfile(data_path, dtype=np.float32, count=20000 * len_series).reshape(-1, len_series)
-    # origin_query = np.fromfile(query_path, dtype=np.float32, count=1000 * len_series).reshape(-1, len_series)
-    # origin_data, origin_query = torch.from_numpy(origin_data), torch.from_numpy(origin_query)
 
     return origin_data, origin_query
 
@@ -75,7 +71,7 @@ def main(argv):
     device = conf.getEntry("device")
     selected_devices = conf.getEntry("GPUs")
 
-    model_path = "./example/" + model_selected + "/save/200000train_human_mlp.pth"
+    model_path = "./example/" + model_selected + "/save/200000train_human.pth"
 
     origin_data, origin_query = getTestData(data_path, data_size, query_size)
 
@@ -89,12 +85,13 @@ def main(argv):
         model = UniTime(conf)
     elif model_selected == "S2IPLLM":
         model = S2IPLLM(conf)
-
-    if torch.cuda.device_count() >= 1:
-        model = nn.DataParallel(model, device_ids=selected_devices).to(device)
         
     checkpoint = torch.load(model_path)
+    checkpoint = {key.replace('module.', ''): value for key, value in checkpoint.items()}
     model.load_state_dict(checkpoint)
+    
+    if torch.cuda.device_count() >= 1:
+        model = nn.DataParallel(model, device_ids=selected_devices).to(device)
     
     if model_selected == "UniTime":
             mask = torch.ones((1, len_series)).to(device)

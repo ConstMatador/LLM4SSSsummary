@@ -30,6 +30,11 @@ class Experiment:
         self.model_selected = self.conf.getEntry("model_selected")
         if self.model_selected == "UniTime":
             self.mask_rate = self.conf.getEntry("mask_rate")
+            
+        # Early Stopping
+        self.patience = 10
+        self.best_val_error = float('inf')
+        self.epochs_without_improvement = 0
         
         logging.basicConfig(
             level = logging.INFO,
@@ -55,6 +60,11 @@ class Experiment:
                 torch.save(self.model.module.state_dict(), f"{self.model_path}example_model.pth")
                 logging.info(f"Model in epoch: {self.epoch} saved successfully.")
 
+            # Early stopping
+            if self.epochs_without_improvement >= self.patience:
+                logging.info(f"Early stopping at epoch {self.epoch} due to no improvement.")
+                break
+            
         self.test()
         
     
@@ -227,6 +237,12 @@ class Experiment:
                 
         avg_error = torch.mean(torch.stack(errors)).item()
         logging.info(f'epoch: {self.epoch}, validate trans_err: {avg_error:.6f}')
+        
+        if avg_error < self.best_val_error:
+            self.best_val_error = avg_error
+            self.epochs_without_improvement = 0
+        else:
+            self.epochs_without_improvement += 1
         
         self.scheduler.step(avg_error)
     

@@ -13,8 +13,8 @@
     "log_path": "./example/AutoTimes/log/example.log",
     "model_path": "./example/AutoTimes/model/",
 
-    "device": "cuda:7",
-    "GPUs": [7],
+    "device": "cuda:3",
+    "GPUs": [3],
 
     "llm_type": "gpt2",
     "llm_layers": 6,
@@ -25,7 +25,7 @@
     "epoch_max": 100,
     "len_series": 256,
     "len_reduce": 16,
-    "batch_size": 512,
+    "batch_size": 1024,
     
     "data_size": 1000000,
     "train_size":200000,

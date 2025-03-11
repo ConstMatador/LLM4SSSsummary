@@ -1,1 +1,1 @@
-nohup python LLM4SSSsummary_run.py -C conf/S2IPLLM.json &
+nohup python LLM4SSSsummary_run.py -C conf/AutoTimes.json &

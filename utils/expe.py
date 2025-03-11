@@ -100,7 +100,7 @@ class Experiment:
         if os.path.exists(f"{self.model_path}example_model.pth"):
             logging.info("Model loading...")
             checkpoint = torch.load(f"{self.model_path}example_model.pth")
-            checkpoint = {key.replace('module.', ''): value for key, value in checkpoint.items()}
+            # checkpoint = {key.replace('module.', ''): value for key, value in checkpoint.items()}
             self.model.load_state_dict(checkpoint)
         else:
             logging.info("Model initializing...")

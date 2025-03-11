@@ -90,10 +90,11 @@ def main(argv):
     elif model_selected == "S2IPLLM":
         model = S2IPLLM(conf)
 
-    if torch.cuda.device_count() > 1:
+    if torch.cuda.device_count() >= 1:
         model = nn.DataParallel(model, device_ids=selected_devices).to(device)
         
-    model.load_state_dict(torch.load(model_path))
+    checkpoint = torch.load(model_path)
+    model.load_state_dict(checkpoint)
     
     if model_selected == "UniTime":
             mask = torch.ones((1, len_series)).to(device)

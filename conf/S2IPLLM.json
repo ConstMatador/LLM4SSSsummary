@@ -40,10 +40,10 @@
     "pool_size": 1000,
     "prompt_key_init": "text_prototype",
     "embedding_key": "mean",
-    "top_k": 8,
+    "top_k": 16,
 
-    "encoder_type": "mlp",
-    "decoder_type": "mlp",
+    "encoder_type": "linear",
+    "decoder_type": "linear",
     "mlp_layers": 2,
     "mlp_dim": 512,
     "activation":"tanh",

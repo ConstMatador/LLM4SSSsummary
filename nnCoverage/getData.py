@@ -87,9 +87,7 @@ def main(argv):
         model = S2IPLLM(conf)
         
     checkpoint = torch.load(model_path)
-    checkpoint = {key.replace('module.', ''): value for key, value in checkpoint.items()}
     model.load_state_dict(checkpoint)
-    
     if torch.cuda.device_count() >= 1:
         model = nn.DataParallel(model, device_ids=selected_devices).to(device)
     

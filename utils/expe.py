@@ -54,8 +54,6 @@ class Experiment:
             if self.epoch % 10 == 0:
                 torch.save(self.model.module.state_dict(), f"{self.model_path}example_model.pth")
                 logging.info(f"Model in epoch: {self.epoch} saved successfully.")
-            
-            torch.cuda.empty_cache()
 
         self.test()
         
@@ -157,7 +155,7 @@ class Experiment:
             init_weights(module)
         return model
     
-    
+    # For UniTime
     def random_mask(self):
         mask = torch.rand((self.batch_size, self.len_series))   # 随机生成0-1的随机数
         # mask: (batch_size, len_series)

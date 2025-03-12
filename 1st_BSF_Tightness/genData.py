@@ -28,6 +28,8 @@ query_size = 1000
 len_series = 256
 len_reduce = 16
 
+batch_size = 100
+
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Command-line parameters')
@@ -41,11 +43,8 @@ def main(argv):
     
     model_path = "./example/" + model_selected + "/save/200000train_human.pth"
     
-    origin_data_path = "./1st_BSF_Tightness/" + model_selected + "/data/origin_data.bin"
-    origin_query_path = "./1st_BSF_Tightness/" + model_selected + "/data/origin_query.bin"
-    
-    reduce_data_path = "./1st_BSF_Tightness/" + model_selected + "/data/reduce_data.bin"
-    reduce_query_path = "./1st_BSF_Tightness/" + model_selected + "/data/reduce_query.bin"
+    reduce_data_path = "./1st_BSF_Tightness/" + model_selected + "/reduce_data.bin"
+    reduce_query_path = "./1st_BSF_Tightness/" + model_selected + "/reduce_query.bin"
     
     # getTestData Function
     def getTestData(data_path, data_size, query_size):
@@ -58,7 +57,6 @@ def main(argv):
             if not np.isnan(np.sum(sequence)):
                 origin_data.append(sequence)
         origin_data = np.array(origin_data, dtype=np.float32)
-        origin_data.tofile(origin_data_path)
         
         origin_query = []
         for index in query_indices:
@@ -66,8 +64,7 @@ def main(argv):
             if not np.isnan(np.sum(sequence)):
                 origin_query.append(sequence)
         origin_query = np.array(origin_query, dtype=np.float32)
-        origin_query.tofile(origin_query_path)
-        
+
         origin_data, origin_query = torch.from_numpy(origin_data), torch.from_numpy(origin_query)
 
         return origin_data, origin_query
@@ -75,6 +72,12 @@ def main(argv):
     
     
     origin_data, origin_query = getTestData(data_path, data_size, query_size)
+    # origin_data: [1000000, 256]
+    # origin_query: [1000, 256]
+    origin_data = origin_data.reshape(-1, batch_size, len_series).to(device)
+    # origin_data: [1000000/100, 100, 256]
+    origin_query = origin_query.reshape(-1, batch_size, len_series).to(device)
+    # origin_query: [1000/100, 100, 256]
     
     if model_selected == "GPT4SSS":
         model = GPT4SSS(conf)
@@ -95,35 +98,42 @@ def main(argv):
     if model_selected == "UniTime":
             mask = torch.ones((1, len_series)).to(device)
             
-    reduce_data = []
-    i = 1
-    for data in origin_data:
+    reduce_batches = []
+    i = 100
+    for batch in origin_data:
+        # batch: [100, 256]
         with torch.no_grad():
             if model_selected == "UniTime":
-                data = model(data.unsqueeze(0).to(device), mask).cpu()
+                reduce_batch = model(batch, mask)
             else:
-                data = model(data.unsqueeze(0).to(device)).cpu()
-            data = data.reshape(-1).cpu().numpy()
-        reduce_data.append(data)
-        if i % 100 == 0:
-            print(f"data {i} completed.")
-        i = i + 1
+                reduce_batch = model(batch)
+            # reduce_batch: [100, 16]
+            reduce_batch = reduce_batch.cpu().numpy()
+        reduce_batches.append(reduce_batch)
+        print(f"data {i} completed.")
+        i = i + 100
+    # reduce_batches: [1000000/100, 100, 16]
+    reduce_data = reduce_batches.reshape(-1, len_reduce)
+    # reduce_data: [1000000, 16]
     reduce_data = np.array(reduce_data, dtype=np.float32)
     reduce_data.tofile(reduce_data_path)
     torch.cuda.empty_cache()
     
-    reduce_query = []
-    i = 1
-    for data in origin_query:
+    reduce_batches = []
+    i = 100
+    for batch in origin_query:
+        # batch: [100, 256]
         with torch.no_grad():
-            if model_selected == "UniTime": 
-                data = model(data.unsqueeze(0).to(device), mask).cpu()
+            if model_selected == "UniTime":
+                reduce_batch = model(batch, mask)
             else:
-                data = model(data.unsqueeze(0).to(device))
-            data = data.reshape(-1).cpu().numpy()
-        reduce_query.append(data)
+                reduce_batch = model(batch)
+            reduce_batch = reduce_batch.cpu().numpy()
+        reduce_batches.append(reduce_batch)
         print(f"query {i} completed.")
-        i = i + 1
+        i = i + 100
+    reduce_query = reduce_batches.reshape(-1, len_reduce)
+    # reduce_data: [1000, 16]
     reduce_query = np.array(reduce_query, dtype=np.float32)
     reduce_query.tofile(reduce_query_path)
     torch.cuda.empty_cache()

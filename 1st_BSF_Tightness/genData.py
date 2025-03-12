@@ -28,7 +28,7 @@ query_size = 1000
 len_series = 256
 len_reduce = 16
 
-batch_size = 100
+batch_size = 1000
 
 
 def main(argv):
@@ -53,14 +53,14 @@ def main(argv):
         
         origin_data = []
         for index in data_indices:
-            sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+            sequence = np.fromfile(data_path, dtype=np.float32, count=len_series, offset=4*len_series*index)
             if not np.isnan(np.sum(sequence)):
                 origin_data.append(sequence)
         origin_data = np.array(origin_data, dtype=np.float32)
         
         origin_query = []
         for index in query_indices:
-            sequence = np.fromfile(query_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+            sequence = np.fromfile(query_path, dtype=np.float32, count=len_series, offset=4*len_series*index)
             if not np.isnan(np.sum(sequence)):
                 origin_query.append(sequence)
         origin_query = np.array(origin_query, dtype=np.float32)
@@ -92,37 +92,37 @@ def main(argv):
         
     checkpoint = torch.load(model_path)
     model.load_state_dict(checkpoint)
-    if torch.cuda.device_count() >= 1:
+    if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model, device_ids=selected_devices).to(device)
         
     if model_selected == "UniTime":
             mask = torch.ones((1, len_series)).to(device)
             
     reduce_batches = []
-    i = 100
+    i = batch_size
     for batch in origin_data:
-        # batch: [100, 256]
+        # batch: [1000, 256]
         with torch.no_grad():
             if model_selected == "UniTime":
                 reduce_batch = model(batch, mask)
             else:
                 reduce_batch = model(batch)
-            # reduce_batch: [100, 16]
+            # reduce_batch: [1000, 16]
             reduce_batch = reduce_batch.cpu().numpy()
         reduce_batches.append(reduce_batch)
         print(f"data {i} completed.")
-        i = i + 100
-    # reduce_batches: [1000000/100, 100, 16]
+        i = i + batch_size
+    # reduce_batches: [1000000/1000, 1000, 16]
+    reduce_batches = np.array(reduce_batches, dtype=np.float32)
     reduce_data = reduce_batches.reshape(-1, len_reduce)
     # reduce_data: [1000000, 16]
-    reduce_data = np.array(reduce_data, dtype=np.float32)
     reduce_data.tofile(reduce_data_path)
     torch.cuda.empty_cache()
     
     reduce_batches = []
-    i = 100
+    i = batch_size
     for batch in origin_query:
-        # batch: [100, 256]
+        # batch: [1000, 256]
         with torch.no_grad():
             if model_selected == "UniTime":
                 reduce_batch = model(batch, mask)
@@ -131,10 +131,10 @@ def main(argv):
             reduce_batch = reduce_batch.cpu().numpy()
         reduce_batches.append(reduce_batch)
         print(f"query {i} completed.")
-        i = i + 100
+        i = i + batch_size
+    reduce_batches = np.array(reduce_batches, dtype=np.float32)
     reduce_query = reduce_batches.reshape(-1, len_reduce)
     # reduce_data: [1000, 16]
-    reduce_query = np.array(reduce_query, dtype=np.float32)
     reduce_query.tofile(reduce_query_path)
     torch.cuda.empty_cache()
     

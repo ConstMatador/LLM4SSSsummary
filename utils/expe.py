@@ -123,7 +123,7 @@ class Experiment:
         # self.scheduler = LambdaLR(self.optimizer, lr_lambda = self.lr_lambda)
         
         # multi-GPUs
-        if torch.cuda.device_count() >= 1:
+        if torch.cuda.device_count() > 1:
             selected_device = self.conf.getEntry("GPUs")
             logging.info(f"Using {len(selected_device)} GPUs")
             self.model = nn.DataParallel(self.model, device_ids=selected_device)

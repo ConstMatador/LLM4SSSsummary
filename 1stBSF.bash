@@ -1,0 +1,1 @@
+python ./1st_BSF_Tightness/genData.py -C ./conf/AutoTimes.json

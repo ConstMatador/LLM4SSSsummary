@@ -2,5 +2,8 @@ example/*
 nnCoverage/data/*
 nnCoverage/result/*
 nohup.out
-1st_BSF_Tightness/data/*
-1st_BSF_Tightness/result/*
+1st_BSF_Tightness/GPT4SSS/*
+1st_BSF_Tightness/TimeLLM/*
+1st_BSF_Tightness/AutoTimes/*
+1st_BSF_Tightness/UniTime/*
+1st_BSF_Tightness/S2IPLLM/*

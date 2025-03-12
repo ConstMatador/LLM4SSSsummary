@@ -19,12 +19,6 @@ from model.S2IPLLM import S2IPLLM
 data_path = "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin"
 query_path = "../Data/SEAnet/data_250k_seed14784_len256_znorm.bin"
 
-origin_data_path = "./1st_BSF_Tightness/data/origin_data.bin"
-origin_query_path = "./1st_BSF_Tightness/data/origin_query.bin"
-
-reduce_data_path = "./1st_BSF_Tightness/data/reduce_data.bin"
-reduce_query_path = "./1st_BSF_Tightness/data/reduce_query.bin"
-
 max_data_size = 10000000
 data_size = 1000000
 
@@ -33,31 +27,6 @@ query_size = 1000
 
 len_series = 256
 len_reduce = 16
-
-
-def getTestData(data_path, data_size, query_size):
-    data_indices = np.random.randint(0, max_data_size, size=data_size, dtype=np.int64)
-    query_indices = np.random.randint(0, max_query_size, size=query_size, dtype=np.int64)
-    
-    origin_data = []
-    for index in data_indices:
-        sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
-        if not np.isnan(np.sum(sequence)):
-            origin_data.append(sequence)
-    origin_data = np.array(origin_data, dtype=np.float32)
-    origin_data.tofile(origin_data_path)
-    
-    origin_query = []
-    for index in query_indices:
-        sequence = np.fromfile(query_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
-        if not np.isnan(np.sum(sequence)):
-            origin_query.append(sequence)
-    origin_query = np.array(origin_query, dtype=np.float32)
-    origin_query.tofile(origin_query_path)
-    
-    origin_data, origin_query = torch.from_numpy(origin_data), torch.from_numpy(origin_query)
-
-    return origin_data, origin_query
 
 
 def main(argv):
@@ -71,6 +40,39 @@ def main(argv):
     selected_devices = conf.getEntry("GPUs")
     
     model_path = "./example/" + model_selected + "/save/200000train_human.pth"
+    
+    origin_data_path = "./1st_BSF_Tightness/" + model_selected + "/data/origin_data.bin"
+    origin_query_path = "./1st_BSF_Tightness/" + model_selected + "/data/origin_query.bin"
+    
+    reduce_data_path = "./1st_BSF_Tightness/" + model_selected + "/data/reduce_data.bin"
+    reduce_query_path = "./1st_BSF_Tightness/" + model_selected + "/data/reduce_query.bin"
+    
+    # getTestData Function
+    def getTestData(data_path, data_size, query_size):
+        data_indices = np.random.randint(0, max_data_size, size=data_size, dtype=np.int64)
+        query_indices = np.random.randint(0, max_query_size, size=query_size, dtype=np.int64)
+        
+        origin_data = []
+        for index in data_indices:
+            sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+            if not np.isnan(np.sum(sequence)):
+                origin_data.append(sequence)
+        origin_data = np.array(origin_data, dtype=np.float32)
+        origin_data.tofile(origin_data_path)
+        
+        origin_query = []
+        for index in query_indices:
+            sequence = np.fromfile(query_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+            if not np.isnan(np.sum(sequence)):
+                origin_query.append(sequence)
+        origin_query = np.array(origin_query, dtype=np.float32)
+        origin_query.tofile(origin_query_path)
+        
+        origin_data, origin_query = torch.from_numpy(origin_data), torch.from_numpy(origin_query)
+
+        return origin_data, origin_query
+    # End Function
+    
     
     origin_data, origin_query = getTestData(data_path, data_size, query_size)
     

@@ -2,3 +2,5 @@ example/*
 nnCoverage/data/*
 nnCoverage/result/*
 nohup.out
+1st_BSF_Tightness/data/*
+1st_BSF_Tightness/result/*

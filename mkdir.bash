@@ -32,3 +32,6 @@ mkdir example/S2IPLLM/save
 
 mkdir nnCoverage/data
 mkdir nnCoverage/result
+
+mkdir 1st_BSF_Tightness/data
+mkdir 1st_BSF_Tightness/result

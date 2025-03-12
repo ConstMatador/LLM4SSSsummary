@@ -5,7 +5,7 @@ from utils.expe import Experiment
 
 
 def main(argv):
-    parser = argparse.ArgumentParser(description='Command-line parameters for LLM4SSS')
+    parser = argparse.ArgumentParser(description='Command-line parameters')
     parser.add_argument('-C', '--conf', type=str, required=True, dest='confpath', help='path of conf file')
     args = parser.parse_args(argv[1: ])
     conf = Configuration(args.confpath)

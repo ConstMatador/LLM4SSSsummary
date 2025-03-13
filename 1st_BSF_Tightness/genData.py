@@ -28,7 +28,8 @@ query_size = 1000
 len_series = 256
 len_reduce = 16
 
-batch_size = 1000
+batch_size1 = 5000
+batch_size2 = 1000
 
 
 def main(argv):
@@ -74,9 +75,9 @@ def main(argv):
     origin_data, origin_query = getTestData(data_path, data_size, query_size)
     # origin_data: [1000000, 256]
     # origin_query: [1000, 256]
-    origin_data = origin_data.reshape(-1, batch_size, len_series).to(device)
+    origin_data = origin_data.reshape(-1, batch_size1, len_series).to(device)
     # origin_data: [1000000/100, 100, 256]
-    origin_query = origin_query.reshape(-1, batch_size, len_series).to(device)
+    origin_query = origin_query.reshape(-1, batch_size2, len_series).to(device)
     # origin_query: [1000/100, 100, 256]
     
     if model_selected == "GPT4SSS":
@@ -99,7 +100,7 @@ def main(argv):
             mask = torch.ones((1, len_series)).to(device)
             
     reduce_batches = []
-    i = batch_size
+    i = batch_size1
     for batch in origin_data:
         # batch: [1000, 256]
         with torch.no_grad():
@@ -111,7 +112,7 @@ def main(argv):
             reduce_batch = reduce_batch.cpu().numpy()
         reduce_batches.append(reduce_batch)
         print(f"data {i} completed.")
-        i = i + batch_size
+        i = i + batch_size1
     # reduce_batches: [1000000/1000, 1000, 16]
     reduce_batches = np.array(reduce_batches, dtype=np.float32)
     reduce_data = reduce_batches.reshape(-1, len_reduce)
@@ -120,7 +121,7 @@ def main(argv):
     torch.cuda.empty_cache()
     
     reduce_batches = []
-    i = batch_size
+    i = batch_size2
     for batch in origin_query:
         # batch: [1000, 256]
         with torch.no_grad():
@@ -131,7 +132,7 @@ def main(argv):
             reduce_batch = reduce_batch.cpu().numpy()
         reduce_batches.append(reduce_batch)
         print(f"query {i} completed.")
-        i = i + batch_size
+        i = i + batch_size2
     reduce_batches = np.array(reduce_batches, dtype=np.float32)
     reduce_query = reduce_batches.reshape(-1, len_reduce)
     # reduce_data: [1000, 16]

@@ -1,1 +1,1 @@
-python ./1st_BSF_Tightness/genData.py -C ./conf/AutoTimes.json
+python ./1st_BSF_Tightness/genData.py -C ./conf/S2IPLLM.json

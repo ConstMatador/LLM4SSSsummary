@@ -98,7 +98,9 @@ def main(argv):
         
     if model_selected == "UniTime":
             mask = torch.ones((1, len_series)).to(device)
-            
+    
+    print("Start Processing Data...")
+    
     reduce_batches = []
     i = batch_size1
     for batch in origin_data:

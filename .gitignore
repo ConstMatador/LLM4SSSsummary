@@ -1,11 +1,19 @@
 example/*
+
 nnCoverage/data/*
 nnCoverage/result/*
+
 1stBSF_Data/GPT4SSS/*
 1stBSF_Data/TimeLLM/*
 1stBSF_Data/AutoTimes/*
 1stBSF_Data/UniTime/*
 1stBSF_Data/S2IPLLM/*
+
+1stBSF_Tightness/GPT4SSS/*
+1stBSF_Tightness/TimeLLM/*
+1stBSF_Tightness/AutoTimes/*
+1stBSF_Tightness/UniTime/*
+1stBSF_Tightness/S2IPLLM/*
 
 run.out
 1stBSF_Data.out

@@ -38,3 +38,9 @@ mkdir 1stBSF_Data/TimeLLM
 mkdir 1stBSF_Data/AutoTimes
 mkdir 1stBSF_Data/UniTime
 mkdir 1stBSF_Data/S2IPLLM
+
+mkdir 1stBSF_Tightness/GPT4SSS
+mkdir 1stBSF_Tightness/TimeLLM
+mkdir 1stBSF_Tightness/AutoTimes
+mkdir 1stBSF_Tightness/UniTime
+mkdir 1stBSF_Tightness/S2IPLLM

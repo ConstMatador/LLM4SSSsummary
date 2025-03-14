@@ -1,11 +1,11 @@
 example/*
 nnCoverage/data/*
 nnCoverage/result/*
-1st_BSF_Tightness/GPT4SSS/*
-1st_BSF_Tightness/TimeLLM/*
-1st_BSF_Tightness/AutoTimes/*
-1st_BSF_Tightness/UniTime/*
-1st_BSF_Tightness/S2IPLLM/*
+1stBSF_Data/GPT4SSS/*
+1stBSF_Data/TimeLLM/*
+1stBSF_Data/AutoTimes/*
+1stBSF_Data/UniTime/*
+1stBSF_Data/S2IPLLM/*
 
-nohup.out
-1stBSF.out
+run.out
+1stBSF_Data.out

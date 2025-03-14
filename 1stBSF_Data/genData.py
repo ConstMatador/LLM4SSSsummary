@@ -44,8 +44,8 @@ def main(argv):
     
     model_path = "./example/" + model_selected + "/save/200000train_human.pth"
     
-    reduce_data_path = "./1st_BSF_Tightness/" + model_selected + "/reduce_data.bin"
-    reduce_query_path = "./1st_BSF_Tightness/" + model_selected + "/reduce_query.bin"
+    reduce_data_path = "./1stBSF_Data/" + model_selected + "/reduce_data.bin"
+    reduce_query_path = "./1stBSF_Data/" + model_selected + "/reduce_query.bin"
     
     # getTestData Function
     def getTestData(data_path, data_size, query_size):

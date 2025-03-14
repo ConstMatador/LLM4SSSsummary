@@ -1,0 +1,1 @@
+nohup python ./1stBSF_Data/genData.py -C ./conf/S2IPLLM.json > 1stBSF_Data.out 2>&1 &

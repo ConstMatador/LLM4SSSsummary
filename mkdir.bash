@@ -33,8 +33,8 @@ mkdir example/S2IPLLM/save
 mkdir nnCoverage/data
 mkdir nnCoverage/result
 
-mkdir 1st_BSF_Tightness/GPT4SSS
-mkdir 1st_BSF_Tightness/TimeLLM
-mkdir 1st_BSF_Tightness/AutoTimes
-mkdir 1st_BSF_Tightness/UniTime
-mkdir 1st_BSF_Tightness/S2IPLLM
+mkdir 1stBSF_Data/GPT4SSS
+mkdir 1stBSF_Data/TimeLLM
+mkdir 1stBSF_Data/AutoTimes
+mkdir 1stBSF_Data/UniTime
+mkdir 1stBSF_Data/S2IPLLM

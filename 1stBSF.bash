@@ -1,1 +1,1 @@
-python ./1st_BSF_Tightness/genData.py -C ./conf/S2IPLLM.json
+nohup python ./1st_BSF_Tightness/genData.py -C ./conf/S2IPLLM.json > 1stBSF.out 2>&1 &

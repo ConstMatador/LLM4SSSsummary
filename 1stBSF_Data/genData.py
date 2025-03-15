@@ -44,6 +44,8 @@ def main(argv):
     
     model_path = "./example/" + model_selected + "/save/200000train_human.pth"
     
+    origin_data_path = "./1stBSF_Data/" + model_selected + "/origin_data.bin"
+    origin_query_path = "./1stBSF_Data/" + model_selected + "/origin_query.bin"
     reduce_data_path = "./1stBSF_Data/" + model_selected + "/reduce_data.bin"
     reduce_query_path = "./1stBSF_Data/" + model_selected + "/reduce_query.bin"
     
@@ -58,6 +60,7 @@ def main(argv):
             if not np.isnan(np.sum(sequence)):
                 origin_data.append(sequence)
         origin_data = np.array(origin_data, dtype=np.float32)
+        origin_data.tofile(origin_data_path)
         
         origin_query = []
         for index in query_indices:
@@ -65,6 +68,7 @@ def main(argv):
             if not np.isnan(np.sum(sequence)):
                 origin_query.append(sequence)
         origin_query = np.array(origin_query, dtype=np.float32)
+        origin_query.tofile(origin_query_path)
 
         origin_data, origin_query = torch.from_numpy(origin_data), torch.from_numpy(origin_query)
 

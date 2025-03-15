@@ -13,8 +13,8 @@
     "log_path": "./example/S2IPLLM/log/example.log",
     "model_path": "./example/S2IPLLM/model/",
 
-    "device": "cuda:4",
-    "GPUs": [4, 5],
+    "device": "cuda:6",
+    "GPUs": [6],
 
     "llm_type": "gpt2",
     "llm_layers": 6,

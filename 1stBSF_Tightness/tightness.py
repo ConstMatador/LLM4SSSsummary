@@ -5,7 +5,7 @@ search_node_nums = [1, 5, 10, 50, 100]
 total_ratio_all_files = 0.0
 num_files = len(search_node_nums)
 
-model_selected = "1stBSF_Tightness/AutoTimes/"
+model_selected = "1stBSF_Tightness/UniTime/"
 file_dir = f"{model_selected}"
 
 for node_num in search_node_nums:

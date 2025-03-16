@@ -1,36 +1,54 @@
 import os
+import numpy as np
+
+
+DATA_DIM = 256
+DATA_SIZE = 1_000_000
+QUERY_SIZE = 1000
+
+model_selected = "S2IPLLM"
+origin_data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"
+origin_query_path = f"1stBSF_Data/{model_selected}/origin_query.bin"
+
+if os.path.exists(origin_data_path):
+    data = np.fromfile(origin_data_path, dtype=np.float32).reshape(DATA_SIZE, DATA_DIM)
+else:
+    raise FileNotFoundError(f"Data file not found: {origin_data_path}")
+
+if os.path.exists(origin_query_path):
+    queries = np.fromfile(origin_query_path, dtype=np.float32).reshape(QUERY_SIZE, DATA_DIM)
+else:
+    raise FileNotFoundError(f"Query file not found: {origin_query_path}")
 
 search_node_nums = [1, 5, 10, 50, 100]
-
-total_ratio_all_files = 0.0
-num_files = len(search_node_nums)
-
-model_selected = "1stBSF_Tightness/UniTime/"
-file_dir = f"{model_selected}"
+file_dir = f"1stBSF_Tightness/{model_selected}/"
 
 for node_num in search_node_nums:
-    file_exac = os.path.join(file_dir, f"exact-10000.txt")
-    file_appro = os.path.join(file_dir, f"appro-{node_num}.txt")
-
-    if not os.path.exists(file_exac) or not os.path.exists(file_appro):
-        print(f"file {file_exac} or {file_appro} not exist.")
-        continue
+    exact_file = os.path.join(file_dir, "exact.txt")
+    appro_file = os.path.join(file_dir, f"appro-{node_num}.txt")
     
-    with open(file_exac, 'r') as file_exac, open(file_appro, 'r') as file_appro:
-        lines_exac = file_exac.readlines()
-        lines_appro = file_appro.readlines()
+    if not all(os.path.exists(f) for f in [exact_file, appro_file]):
+        print(f"Skipping node_num {node_num}: files missing")
+        continue
 
-    if len(lines_exac) != len(lines_appro):
-        raise ValueError(f"file {file_exac} and {file_appro} have different number of lines")
+    with open(exact_file, 'r') as f_exact, open(appro_file, 'r') as f_appro:
+        exact_indices = [int(line.strip()) for line in f_exact]
+        appro_indices = [int(line.strip()) for line in f_appro]
+
+    if len(exact_indices) != QUERY_SIZE or len(appro_indices) != QUERY_SIZE:
+        raise ValueError(f"Index file length mismatch for node_num {node_num}")
 
     total_ratio = 0.0
-    num_lines = len(lines_exac)
+    for i in range(QUERY_SIZE):
+        query_vec = queries[i]
+        exact_data = data[exact_indices[i]]
+        appro_data = data[appro_indices[i]]
 
-    for line_exac, line_appro in zip(lines_exac, lines_appro):
-        distance_exac = float(line_exac.split('Distance: ')[1])
-        distance_appro = float(line_appro.split('Distance: ')[1])
+        exact_dist = np.linalg.norm(query_vec - exact_data)
+        appro_dist = np.linalg.norm(query_vec - appro_data)
+        # print(f"exact_dist: {exact_dist:.4f}, appro_dist: {appro_dist:.4f}")
+        ratio = exact_dist / appro_dist
+        total_ratio += ratio
 
-        total_ratio += distance_exac / distance_appro
-
-    average_ratio = total_ratio / num_lines
-    print(f"average ratio for {node_num} nodes: {average_ratio}")
+    avg_ratio = total_ratio / QUERY_SIZE
+    print(f"NodeNum {node_num}: Avg. Exact/Appro Ratio = {avg_ratio:.4f}")

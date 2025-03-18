@@ -1,6 +1,6 @@
 import numpy as np
 
-model_selected = "S2IPLLM"
+model_selected = "UniTime"
 
 source_path = f"1stBSF_Tightness/{model_selected}/approSeries.bin"
 target_paths = [
@@ -18,8 +18,6 @@ sequences = []
 for idx in range(0, whole_size):
     sequence = np.fromfile(source_path, dtype=np.float32, count=len_series, offset=4 * len_series * idx)
     sequences.append(sequence)
-
-print(len(sequences))
 
 for i in range(0, 5):
     # 使用 np.concatenate 来拼接数组，而不是 np.append

@@ -4,7 +4,7 @@ import numpy as np
 data_num = 1_000_000
 query_num = 1000
 len_series = 16
-model_selected = "S2IPLLM"
+model_selected = "UniTime"
 
 data_path = f"1stBSF_Data/{model_selected}/reduce_data.bin"
 query_paths = [

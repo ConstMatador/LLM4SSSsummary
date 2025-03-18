@@ -3,11 +3,11 @@ from scipy.spatial import cKDTree
 from tqdm import tqdm
 
 
-model_selected = "S2IPLLM"
+model_selected = "UniTime"
 
 data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"
 query_path = f"1stBSF_Data/{model_selected}/origin_query.bin"
-output_path = f"1stBSF_Tightness/{model_selected}/exactIdx.txt"
+output_path = f"1stBSF_Tightness/{model_selected}/exactIndex.txt"
 
 data = np.fromfile(data_path, dtype=np.float32).reshape(1000000, 256)
 queries = np.fromfile(query_path, dtype=np.float32).reshape(1000, 256)

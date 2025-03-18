@@ -2,7 +2,7 @@ import numpy as np
 
 
 len_series = 256
-model_selected = "S2IPLLM"
+model_selected = "UniTime"
 index_num = 1000
 
 data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"

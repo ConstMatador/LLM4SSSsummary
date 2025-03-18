@@ -7,7 +7,7 @@ model_selected = "S2IPLLM"
 
 data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"
 query_path = f"1stBSF_Data/{model_selected}/origin_query.bin"
-output_path = f"1stBSF_Tightness/{model_selected}/exact.txt"
+output_path = f"1stBSF_Tightness/{model_selected}/exactIdx.txt"
 
 data = np.fromfile(data_path, dtype=np.float32).reshape(1000000, 256)
 queries = np.fromfile(query_path, dtype=np.float32).reshape(1000, 256)

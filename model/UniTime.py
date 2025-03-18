@@ -88,7 +88,7 @@ class UniTime(nn.Module):
         # print("2:",x.shape)
         
         self.stride = self.conf.getEntry('stride')
-
+        
         x = x.unfold(dimension=-1, size=self.patch_len, step=self.stride)
         mask = mask.unfold(dimension=-1, size=self.patch_len, step=self.stride)
         # x/mask:  (batch_size, patch_num, patch_len)

@@ -1,1 +1,1 @@
-nohup python -u LLM4SSSsummary_run.py -C conf/S2IPLLM.json > run.out 2>&1 &
+nohup python -u LLM4SSSsummary_run.py -C conf/TimeLLM.json > run.out 2>&1 &

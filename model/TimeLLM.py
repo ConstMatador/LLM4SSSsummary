@@ -53,7 +53,7 @@ class TimeLLM(nn.Module):
             else:
                 param.requires_grad = False
         
-        self.word_embeddings = self.llm_model.get_input_embeddings().weight.to(self.device)
+        self.word_embeddings = self.llm_model.get_input_embeddings().weight
         # self.word_embeddings: (vocab_size, dim_llm)
         self.vocab_size = self.word_embeddings.shape[0]
         self.patching = Patching(conf)
@@ -98,9 +98,12 @@ class TimeLLM(nn.Module):
         
         self.prompts = self.tokenizer(self.prompts, return_tensors="pt", padding=True,
                                  truncation=True, max_length=2048).input_ids
-        self.prompts = self.prompts.to(self.device)
+        
+        # get current device
+        current_device = batch.device
+        
+        self.prompts = self.prompts.to(current_device)
         self.prompts_embedding = self.llm_model.get_input_embeddings()(self.prompts)
-        self.prompts_embedding = self.prompts_embedding.to(self.device)
         # prompts_embedding: (batch_size, prompt_len, dim_llm)
         
         current_length = self.prompts_embedding.size(1)
@@ -112,15 +115,14 @@ class TimeLLM(nn.Module):
                 torch.tensor([self.tokenizer.pad_token_id] * (self.prompt_len - current_length))
                 .unsqueeze(0)
                 .repeat(self.prompts_embedding.size(0), 1)
-                .to(self.device)
-            )
-            self.pad_embedding = self.pad_embedding.to(self.device)
+                .to(current_device)
+            ).to(current_device)
             self.prompts_embedding = torch.cat([self.prompts_embedding, self.pad_embedding], dim=1)
         
         batch_patched = self.patching(batch)
         # batch_patched: (batch_size, patch_num, dim_model)
         
-        source_embeddings = self.reduce_layer(self.word_embeddings.permute(1, 0)).permute(1, 0)
+        source_embeddings = self.reduce_layer(self.word_embeddings.to(current_device).permute(1, 0)).permute(1, 0)
         # source_embeddings: (reduced_vocab_size, dim_llm)
         
         batch_mapped = self.mapping(batch_patched, source_embeddings, source_embeddings)
@@ -128,8 +130,6 @@ class TimeLLM(nn.Module):
     
         llm_imput_embeddings = torch.cat([self.prompts_embedding, batch_mapped], dim=1)
         # llm_imput_embeddings: (batch_size, patch_num + prompt_len, dim_llm)
-        
-        llm_imput_embeddings = llm_imput_embeddings.to(self.device)
         
         with torch.no_grad():
             llm_output = self.llm_model(inputs_embeds = llm_imput_embeddings).last_hidden_state

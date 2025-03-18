@@ -1,37 +1,39 @@
-import struct
+import numpy as np
 
 
+data_num = 1_000_000
+query_num = 1000
+len_series = 16
 model_selected = "S2IPLLM"
 
-def read_file(file_path):
-    sequences = []
-    with open(file_path, 'r') as f:
-        for line in f:
-            sequence = [struct.unpack('f', bytes.fromhex(line[i:i+8]))[0] for i in range(0, len(line.strip()), 8)]
-            sequences.append(sequence)
-    return sequences
+data_path = f"1stBSF_Data/{model_selected}/reduce_data.bin"
+query_paths = [
+    f"1stBSF_Tightness/{model_selected}/approSeries_1.bin",
+    f"1stBSF_Tightness/{model_selected}/approSeries_5.bin",
+    f"1stBSF_Tightness/{model_selected}/approSeries_10.bin",
+    f"1stBSF_Tightness/{model_selected}/approSeries_50.bin",
+    f"1stBSF_Tightness/{model_selected}/approSeries_100.bin"
+]
+output_paths = [
+    f"1stBSF_Tightness/{model_selected}/approIndex_1.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_5.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_10.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_50.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_100.txt"
+]
 
-
-def find_sequence_in_file(sequence, file2_sequences):
-    for idx, seq in enumerate(file2_sequences):
-        if seq == sequence:
-            return idx
-    raise ValueError(f"Sequence {sequence} not found.")
-
-
-def main():
-    file1_path = f"1stBSF_Tightness/{model_selected}/approSeries_1.txt"
-    file2_path = f"1stBSF_Data/{model_selected}/reduce_data.bin"
+for i in range(0, 5):
+    query_path = query_paths[i]
+    data_seq = np.memmap(data_path, dtype=np.float32, mode='r', shape=(data_num, len_series))
+    query_seq = np.fromfile(query_path, dtype=np.float32, count=query_num * len_series).reshape(query_num, len_series)
+    output_path = output_paths[i]
     
-    file1_sequences = read_file(file1_path)
-    file2_sequences = read_file(file2_path)
-    
-    for idx, seq in enumerate(file1_sequences):
-        try:
-            position = find_sequence_in_file(seq, file2_sequences)
-            print(f"Sequence {seq} from file1 found at position {position} in file2.")
-        except ValueError as e:
-            print(e)
-
-if __name__ == "__main__":
-    main()
+    with open(output_path, 'a') as f:
+        for query_idx, query in enumerate(query_seq):
+            match = np.all(data_seq == query, axis=1)
+            match_index = np.where(match)[0][0]
+            if match_index.size > 0:
+                print(f"Series {query_idx} found at index {match_index}.")
+                f.write(f"{match_index}\n")
+            else:
+                raise ValueError(f"Series {query_idx} failed to find the index.")

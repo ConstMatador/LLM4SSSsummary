@@ -1,54 +1,51 @@
-import os
 import numpy as np
 
 
-DATA_DIM = 256
-DATA_SIZE = 1_000_000
-QUERY_SIZE = 1000
-
+len_series = 256
 model_selected = "S2IPLLM"
-origin_data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"
-origin_query_path = f"1stBSF_Data/{model_selected}/origin_query.bin"
+index_num = 1000
 
-if os.path.exists(origin_data_path):
-    data = np.fromfile(origin_data_path, dtype=np.float32).reshape(DATA_SIZE, DATA_DIM)
-else:
-    raise FileNotFoundError(f"Data file not found: {origin_data_path}")
+data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"
+query_path = f"1stBSF_Data/{model_selected}/origin_query.bin"
+exact_index_path = f"1stBSF_Tightness/{model_selected}/exactIndex.txt"
+appro_index_paths = [
+    f"1stBSF_Tightness/{model_selected}/approIndex_1.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_5.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_10.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_50.txt",
+    f"1stBSF_Tightness/{model_selected}/approIndex_100.txt"
+]
+node_nums = [1, 5, 10, 50, 100]
 
-if os.path.exists(origin_query_path):
-    queries = np.fromfile(origin_query_path, dtype=np.float32).reshape(QUERY_SIZE, DATA_DIM)
-else:
-    raise FileNotFoundError(f"Query file not found: {origin_query_path}")
+exact_indice = []
+with open(exact_index_path, 'r') as file:
+        for line in file:
+            index = int(line.strip())
+            exact_indice.append(index)
 
-search_node_nums = [1, 5, 10, 50, 100]
-file_dir = f"1stBSF_Tightness/{model_selected}/"
+origin_data = np.fromfile(data_path, dtype=np.float32).reshape(-1, len_series)
+origin_query = np.fromfile(query_path, dtype=np.float32).reshape(-1, len_series)
 
-for node_num in search_node_nums:
-    exact_file = os.path.join(file_dir, "exact.txt")
-    appro_file = os.path.join(file_dir, f"appro-{node_num}.txt")
+for appro_index_path, node_num in zip(appro_index_paths, node_nums):
     
-    if not all(os.path.exists(f) for f in [exact_file, appro_file]):
-        print(f"Skipping node_num {node_num}: files missing")
-        continue
-
-    with open(exact_file, 'r') as f_exact, open(appro_file, 'r') as f_appro:
-        exact_indices = [int(line.strip()) for line in f_exact]
-        appro_indices = [int(line.strip()) for line in f_appro]
-
-    if len(exact_indices) != QUERY_SIZE or len(appro_indices) != QUERY_SIZE:
-        raise ValueError(f"Index file length mismatch for node_num {node_num}")
-
-    total_ratio = 0.0
-    for i in range(QUERY_SIZE):
-        query_vec = queries[i]
-        exact_data = data[exact_indices[i]]
-        appro_data = data[appro_indices[i]]
-
-        exact_dist = np.linalg.norm(query_vec - exact_data)
-        appro_dist = np.linalg.norm(query_vec - appro_data)
-        # print(f"exact_dist: {exact_dist:.4f}, appro_dist: {appro_dist:.4f}")
-        ratio = exact_dist / appro_dist
-        total_ratio += ratio
-
-    avg_ratio = total_ratio / QUERY_SIZE
-    print(f"NodeNum {node_num}: Avg. Exact/Appro Ratio = {avg_ratio:.4f}")
+    appro_indice = []
+    with open(appro_index_path, 'r') as file:
+        for line in file:
+            index = int(line.strip())
+            appro_indice.append(index)
+            
+    all_tightness = []
+    for i in range(0, index_num):
+        query = origin_query[i]
+        exact = origin_data[exact_indice[i]]
+        appro = origin_data[appro_indice[i]]
+        dis1 = np.linalg.norm(query - exact)
+        dis2 = np.linalg.norm(query - appro)
+        if dis2 != 0:
+            tightness = dis1 / dis2
+        else:
+            tightness = float('inf')
+        all_tightness.append(tightness)
+        
+    tightness_mean = np.mean(all_tightness)
+    print(f"1st-BSF Tightness for {node_num} nodes: {tightness_mean}")

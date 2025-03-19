@@ -1,6 +1,6 @@
 import numpy as np
 
-model_selected = "UniTime"
+model_selected = "GPT4SSS"
 
 source_path = f"1stBSF_Tightness/{model_selected}/approSeries.bin"
 target_paths = [
@@ -20,6 +20,5 @@ for idx in range(0, whole_size):
     sequences.append(sequence)
 
 for i in range(0, 5):
-    # 使用 np.concatenate 来拼接数组，而不是 np.append
     temp = np.concatenate(sequences[slice_size * i:slice_size * (i + 1)])
     temp.tofile(target_paths[i])

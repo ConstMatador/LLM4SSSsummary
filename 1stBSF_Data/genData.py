@@ -28,8 +28,8 @@ query_size = 1000
 len_series = 256
 len_reduce = 16
 
-batch_size1 = 2000
-batch_size2 = 1000
+batch_size1 = 500
+batch_size2 = 500
 
 
 def main(argv):

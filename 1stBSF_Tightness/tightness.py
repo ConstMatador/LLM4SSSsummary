@@ -2,7 +2,7 @@ import numpy as np
 
 
 len_series = 256
-model_selected = "UniTime"
+model_selected = "GPT4SSS"
 index_num = 1000
 
 data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"

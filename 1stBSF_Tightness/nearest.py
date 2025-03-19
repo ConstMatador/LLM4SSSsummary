@@ -1,26 +1,31 @@
 import numpy as np
-from scipy.spatial import cKDTree
+import faiss
 from tqdm import tqdm
 
 
-model_selected = "UniTime"
+model_selected = "GPT4SSS"
 
 data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"
 query_path = f"1stBSF_Data/{model_selected}/origin_query.bin"
 output_path = f"1stBSF_Tightness/{model_selected}/exactIndex.txt"
 
-data = np.fromfile(data_path, dtype=np.float32).reshape(1000000, 256)
-queries = np.fromfile(query_path, dtype=np.float32).reshape(1000, 256)
+data = np.fromfile(data_path, dtype=np.float32).reshape(-1, 256)
+queries = np.fromfile(query_path, dtype=np.float32).reshape(-1, 256)
 
-tree = cKDTree(data)
+# 使用 FAISS 构建精确 L2 最近邻搜索索引
+index = faiss.IndexFlatL2(256)  # 直接计算 L2 欧几里得距离
+index.add(data)  # 添加数据到索引
+
+batch_size = 100
+num_batches = (len(queries) + batch_size - 1) // batch_size
 
 nearest_indices = []
-batch_size = 100
 
 for i in tqdm(range(0, len(queries), batch_size), desc="Processing Queries", unit="batch"):
     batch_queries = queries[i:i+batch_size]
-    _, batch_nearest_indices = tree.query(batch_queries, k=1)
-    nearest_indices.extend(batch_nearest_indices)
+    _, batch_nearest_indices = index.search(batch_queries, 1)  # k=1
+    nearest_indices.extend(batch_nearest_indices.flatten())
 
-with open(output_path, "w") as f:
-    f.write("\n".join(map(str, nearest_indices)))
+np.savetxt(output_path, np.array(nearest_indices), fmt="%d")
+
+print(f"Processing complete. Results saved to {output_path}")

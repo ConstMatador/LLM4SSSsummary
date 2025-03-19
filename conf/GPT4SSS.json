@@ -1,8 +1,9 @@
 {
     "model_selected": "GPT4SSS",
+    "dataset_selected": "human",
     
     "conf_path": "./conf/GPT4SSS.json",
-    "data_path": "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin",
+    "data_path": "../Data/LLM4SSS/",
     "llm_path": "../Model/",
     "train_path": "./example/GPT4SSS/sample/train.bin",
     "val_path": "./example/GPT4SSS/sample/val.bin",

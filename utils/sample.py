@@ -17,8 +17,10 @@ class TSData(Dataset):
 
 
 def getSamples(conf: Configuration):
-
+    dataset_selected = conf.getEntry("dataset_selected")
     data_path = conf.getEntry("data_path")
+    data_pos = data_path + dataset_selected + "/data.bin"
+    
     train_path = conf.getEntry("train_path")
     val_path = conf.getEntry("val_path")
     test_path = conf.getEntry("test_path")
@@ -41,21 +43,21 @@ def getSamples(conf: Configuration):
     
     loaded = []
     for index in train_sample_indices:
-        sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+        sequence = np.fromfile(data_pos, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
         loaded.append(sequence)
     train_samples = np.asarray(loaded, dtype=np.float32)
     train_samples.tofile(train_path)
     
     loaded = []
     for index in val_sample_indices:
-        sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+        sequence = np.fromfile(data_pos, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
         loaded.append(sequence)
     val_samples = np.asarray(loaded, dtype=np.float32)
     val_samples.tofile(val_path)
     
     loaded = []
     for index in test_sample_indices:
-        sequence = np.fromfile(data_path, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
+        sequence = np.fromfile(data_pos, dtype = np.float32, count = len_series, offset = 4 * len_series * index)
         loaded.append(sequence)
     test_samples = np.asarray(loaded, dtype=np.float32)
     test_samples.tofile(test_path)

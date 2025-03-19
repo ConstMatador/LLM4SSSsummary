@@ -1,8 +1,9 @@
 {
     "model_selected": "UniTime",
+    "dataset_selected": "human",
 
     "conf_path": "./conf/UniTime.json",
-    "data_path": "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin",
+    "data_path": "../Data/LLM4SSS/",
     "llm_path": "../Model/",
     "train_path": "./example/UniTime/sample/train.bin",
     "val_path": "./example/UniTime/sample/val.bin",

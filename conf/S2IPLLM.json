@@ -1,8 +1,9 @@
 {
     "model_selected": "S2IPLLM",
+    "dataset_selected": "human",
 
     "conf_path": "./conf/S2IPLLM.json",
-    "data_path": "../Data/Mine/sald/sald-10Gb-01_znorm.bin",
+    "data_path": "../Data/LLM4SSS/",
     "llm_path": "../Model/",
     "train_path": "./example/S2IPLLM/sample/train.bin",
     "val_path": "./example/S2IPLLM/sample/val.bin",

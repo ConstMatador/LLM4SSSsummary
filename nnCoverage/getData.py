@@ -16,9 +16,6 @@ from model.S2IPLLM import S2IPLLM
 
 
 # configure
-data_path = "../Data/SEAnet/data_250M_seed1184_len256_znorm.bin"
-query_path = "../Data/SEAnet/data_250k_seed14784_len256_znorm.bin"
-
 origin_data_path = "./nnCoverage/data/origin_data.bin"
 origin_query_path = "./nnCoverage/data/origin_query.bin"
 reduce_data_path = "./nnCoverage/data/reduce_data.bin"
@@ -46,15 +43,19 @@ def main(argv):
     
     model_path = "./example/" + model_selected + "/save/200000train_human.pth"
     
+    dataset_selected = conf.getEntry("dataset_selected")
+    data_path = conf.getEntry("data_path")
+    data_pos = data_path + dataset_selected + "/data.bin"
+    query_pos = data_path + dataset_selected + "/query.bin"
     
     # getTestData Function
-    def getTestData(data_path, data_size, query_size):
+    def getTestData(data_pos, query_pos, data_size, query_size):
         data_indices = np.random.randint(0, max_data_size, size=data_size, dtype=np.int64)
         query_indices = np.random.randint(0, max_query_size, size=query_size, dtype=np.int64)
         
         origin_data = []
         for index in data_indices:
-            sequence = np.fromfile(data_path, dtype=np.float32, count=len_series, offset=4*len_series*index)
+            sequence = np.fromfile(data_pos, dtype=np.float32, count=len_series, offset=4*len_series*index)
             if not np.isnan(np.sum(sequence)):
                 origin_data.append(sequence)
         origin_data = np.array(origin_data, dtype=np.float32)
@@ -62,7 +63,7 @@ def main(argv):
         
         origin_query = []
         for index in query_indices:
-            sequence = np.fromfile(query_path, dtype=np.float32, count=len_series, offset=4*len_series*index)
+            sequence = np.fromfile(query_pos, dtype=np.float32, count=len_series, offset=4*len_series*index)
             if not np.isnan(np.sum(sequence)):
                 origin_query.append(sequence)
         origin_query = np.array(origin_query, dtype=np.float32)
@@ -74,7 +75,7 @@ def main(argv):
     # End Function
     
     
-    origin_data, origin_query = getTestData(data_path, data_size, query_size)
+    origin_data, origin_query = getTestData(data_pos, query_pos, data_size, query_size)
     # origin_data: [1000000, 256]
     # origin_query: [1000, 256]
     origin_data = origin_data.reshape(-1, batch_size, len_series).to(device)

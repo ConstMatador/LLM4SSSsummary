@@ -5,8 +5,8 @@ len_series = 256
 model_selected = "GPT4SSS"
 index_num = 1000
 
-data_path = f"1stBSF_Data/{model_selected}/origin_data.bin"
-query_path = f"1stBSF_Data/{model_selected}/origin_query.bin"
+data_pos = f"1stBSF_Data/{model_selected}/origin_data.bin"
+query_pos = f"1stBSF_Data/{model_selected}/origin_query.bin"
 exact_index_path = f"1stBSF_Tightness/{model_selected}/exactIndex.txt"
 appro_index_paths = [
     f"1stBSF_Tightness/{model_selected}/approIndex_1.txt",
@@ -23,8 +23,8 @@ with open(exact_index_path, 'r') as file:
             index = int(line.strip())
             exact_indice.append(index)
 
-origin_data = np.fromfile(data_path, dtype=np.float32).reshape(-1, len_series)
-origin_query = np.fromfile(query_path, dtype=np.float32).reshape(-1, len_series)
+origin_data = np.fromfile(data_pos, dtype=np.float32).reshape(-1, len_series)
+origin_query = np.fromfile(query_pos, dtype=np.float32).reshape(-1, len_series)
 
 for appro_index_path, node_num in zip(appro_index_paths, node_nums):
     

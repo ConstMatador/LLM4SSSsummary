@@ -5,10 +5,10 @@ import gc
 
 os.chdir('/mnt/data/user_liangzhiyu/wangzhongzheng/LLM4SSSsummary/')
 
-origin_data_path = "./nnCoverage/data/origin_data.bin"
-origin_query_path = "./nnCoverage/data/origin_query.bin"
-reduce_data_path = "./nnCoverage/data/reduce_data.bin"
-reduce_query_path = "./nnCoverage/data/reduce_query.bin"
+origin_data_pos = "./nnCoverage/data/origin_data.bin"
+origin_query_pos = "./nnCoverage/data/origin_query.bin"
+reduce_data_pos = "./nnCoverage/data/reduce_data.bin"
+reduce_query_pos = "./nnCoverage/data/reduce_query.bin"
 
 knn_origin_result = "./nnCoverage/result/knn_origin_result.txt"
 knn_reduce_result = "./nnCoverage/result/knn_reduce_result.txt" 
@@ -96,10 +96,10 @@ def compare_nn_positions(nn_data1, nn_data2):
     return statistics.mean(similarity_ratios.values())
 
 
-origin_data = get_data(origin_data_path, data_size, len_series)
-origin_query = get_data(origin_query_path, query_size, len_series)
-reduce_data = get_data(reduce_data_path, data_size, len_reduce)
-reduce_query = get_data(reduce_query_path, query_size, len_reduce)
+origin_data = get_data(origin_data_pos, data_size, len_series)
+origin_query = get_data(origin_query_pos, query_size, len_series)
+reduce_data = get_data(reduce_data_pos, data_size, len_reduce)
+reduce_query = get_data(reduce_query_pos, query_size, len_reduce)
 # print(origin_data.shape, origin_query.shape)
 # print(reduce_data.shape, reduce_query.shape)
 knn_indices_origin, knn_distances_origin = process_batches(origin_data, origin_query, k, 100, len_series)

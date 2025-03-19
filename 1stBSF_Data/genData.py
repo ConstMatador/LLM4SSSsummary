@@ -1,8 +1,9 @@
 import sys
 import argparse
 import torch
+torch.set_float32_matmul_precision('high')
 import numpy as np
-from torch import nn
+import torch.nn as nn
 
 root_dir = "/mnt/data/user_liangzhiyu/wangzhongzheng/LLM4SSSsummary/"
 sys.path.append(root_dir)
@@ -14,137 +15,103 @@ from model.AutoTimes import AutoTimes
 from model.UniTime import UniTime
 from model.S2IPLLM import S2IPLLM
 
-
 # configure
-max_data_size = 10000000
-data_size = 1000000
+max_data_size = 10_000_000
+data_size = 1_000_000
 
-max_query_size = 10000
-query_size = 1000
+max_query_size = 10_000
+query_size = 1_000
 
 len_series = 256
 len_reduce = 16
 
-batch_size1 = 1000
-batch_size2 = 1000
+batch_size = 1000
 
+def load_binary_data(file_path, indices, len_series):
+
+    data = np.zeros((len(indices), len_series), dtype=np.float32)
+    
+    with open(file_path, 'rb') as f:
+        for i, index in enumerate(indices):
+            f.seek(4 * len_series * index)
+            data[i] = np.frombuffer(f.read(4 * len_series), dtype=np.float32)
+    
+    return torch.tensor(data, dtype=torch.float32)
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Command-line parameters')
     parser.add_argument('-C', '--conf', type=str, required=True, dest='confpath', help='path of conf file')
-    args = parser.parse_args(argv[1: ])
+    args = parser.parse_args(argv[1:])
     conf = Configuration(args.confpath)
-    
+
     model_selected = conf.getEntry("model_selected")
     device = conf.getEntry("device")
     selected_devices = conf.getEntry("GPUs")
-    
+
     model_path = f"./example/{model_selected}/save/200000train_human.pth"
-    
+
     dataset_selected = conf.getEntry("dataset_selected")
     data_path = conf.getEntry("data_path")
+
     data_pos = data_path + dataset_selected + "/data.bin"
     query_pos = data_path + dataset_selected + "/query.bin"
-    
+
     origin_data_pos = f"./1stBSF_Data/{model_selected}/{dataset_selected}/origin_data.bin"
     origin_query_pos = f"./1stBSF_Data/{model_selected}/{dataset_selected}/origin_query.bin"
     reduce_data_pos = f"./1stBSF_Data/{model_selected}/{dataset_selected}/reduce_data.bin"
     reduce_query_pos = f"./1stBSF_Data/{model_selected}/{dataset_selected}/reduce_query.bin"
-    
-    # getTestData Function
-    def getTestData(data_pos, query_pos, data_size, query_size):
-        data_indices = np.random.randint(0, max_data_size, size=data_size, dtype=np.int64)
-        query_indices = np.random.randint(0, max_query_size, size=query_size, dtype=np.int64)
-        
-        origin_data = []
-        for index in data_indices:
-            sequence = np.fromfile(data_pos, dtype=np.float32, count=len_series, offset=4*len_series*index)
-            if not np.isnan(np.sum(sequence)):
-                origin_data.append(sequence)
-        origin_data = np.array(origin_data, dtype=np.float32)
-        origin_data.tofile(origin_data_pos)
-        
-        origin_query = []
-        for index in query_indices:
-            sequence = np.fromfile(query_pos, dtype=np.float32, count=len_series, offset=4*len_series*index)
-            if not np.isnan(np.sum(sequence)):
-                origin_query.append(sequence)
-        origin_query = np.array(origin_query, dtype=np.float32)
-        origin_query.tofile(origin_query_pos)
 
-        origin_data, origin_query = torch.from_numpy(origin_data), torch.from_numpy(origin_query)
+    data_indices = np.random.randint(0, max_data_size, size=data_size, dtype=np.int64)
+    query_indices = np.random.randint(0, max_query_size, size=query_size, dtype=np.int64)
 
-        return origin_data, origin_query
-    # End Function
+    origin_data = load_binary_data(data_pos, data_indices, len_series)
+    origin_query = load_binary_data(query_pos, query_indices, len_series)
+
+    origin_data = origin_data.view(-1, batch_size, len_series).to(device, non_blocking=True)
+    origin_query = origin_query.view(-1, batch_size, len_series).to(device, non_blocking=True)
+
+    model_map = {
+        "GPT4SSS": GPT4SSS,
+        "TimeLLM": TimeLLM,
+        "AutoTimes": AutoTimes,
+        "UniTime": UniTime,
+        "S2IPLLM": S2IPLLM
+    }
+    model = model_map[model_selected](conf)
     
-    
-    origin_data, origin_query = getTestData(data_pos, query_pos, data_size, query_size)
-    # origin_data: [1000000, 256]
-    # origin_query: [1000, 256]
-    origin_data = origin_data.reshape(-1, batch_size1, len_series).to(device)
-    # origin_data: [1000000/100, 100, 256]
-    origin_query = origin_query.reshape(-1, batch_size2, len_series).to(device)
-    # origin_query: [1000/100, 100, 256]
-    
-    if model_selected == "GPT4SSS":
-        model = GPT4SSS(conf)
-    elif model_selected == "TimeLLM":
-        model = TimeLLM(conf)
-    elif model_selected == "AutoTimes":
-        model = AutoTimes(conf)
-    elif model_selected == "UniTime":
-        model = UniTime(conf)
-    elif model_selected == "S2IPLLM":
-        model = S2IPLLM(conf)
-        
-    checkpoint = torch.load(model_path)
+    checkpoint = torch.load(model_path, map_location=device)
     model.load_state_dict(checkpoint)
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model, device_ids=selected_devices).to(device)
+
+    try:
+        model = torch.compile(model)
+    except AttributeError:
+        pass
+
+    mask = torch.ones((1, len_series)).to(device) if model_selected == "UniTime" else None
+    
+    # Start Function Processing Data
+    def process_batches(data, reduce_pos, origin_pos):
+        reduce_batches = np.empty((data.shape[0] * batch_size, len_reduce), dtype=np.float32)
+        original_batches = np.empty((data.shape[0] * batch_size, len_series), dtype=np.float32)
+
+        with torch.no_grad():
+            for i, batch in enumerate(data):
+                original_batches[i * batch_size : (i + 1) * batch_size] = batch.cpu().numpy()
+                reduce_batch = model(batch, mask) if mask is not None else model(batch)
+                reduce_batches[i * batch_size : (i + 1) * batch_size] = reduce_batch.cpu().numpy()
+                print(f"Batch {(i + 1) * batch_size} processed")
         
-    if model_selected == "UniTime":
-            mask = torch.ones((1, len_series)).to(device)
-    
+        original_batches.tofile(origin_pos)
+        reduce_batches.tofile(reduce_pos)
+    # End Function Processing Data
+
     print("Start Processing Data...")
-    
-    reduce_batches = []
-    i = batch_size1
-    for batch in origin_data:
-        # batch: [1000, 256]
-        with torch.no_grad():
-            if model_selected == "UniTime":
-                reduce_batch = model(batch, mask)
-            else:
-                reduce_batch = model(batch)
-            # reduce_batch: [1000, 16]
-            reduce_batch = reduce_batch.cpu().numpy()
-        reduce_batches.append(reduce_batch)
-        print(f"data {i} completed.")
-        i = i + batch_size1
-    # reduce_batches: [1000000/1000, 1000, 16]
-    reduce_batches = np.array(reduce_batches, dtype=np.float32)
-    reduce_data = reduce_batches.reshape(-1, len_reduce)
-    # reduce_data: [1000000, 16]
-    reduce_data.tofile(reduce_data_path)
-    
-    reduce_batches = []
-    i = batch_size2
-    for batch in origin_query:
-        # batch: [1000, 256]
-        with torch.no_grad():
-            if model_selected == "UniTime":
-                reduce_batch = model(batch, mask)
-            else:
-                reduce_batch = model(batch)
-            reduce_batch = reduce_batch.cpu().numpy()
-        reduce_batches.append(reduce_batch)
-        print(f"query {i} completed.")
-        i = i + batch_size2
-    reduce_batches = np.array(reduce_batches, dtype=np.float32)
-    reduce_query = reduce_batches.reshape(-1, len_reduce)
-    # reduce_data: [1000, 16]
-    reduce_query.tofile(reduce_query_path)
-    
-    
+    process_batches(origin_data, reduce_data_pos, origin_data_pos)
+    process_batches(origin_query, reduce_query_pos, origin_query_pos)
+    print("Processing Completed!")
+
+
 if __name__ == '__main__':
     main(sys.argv)

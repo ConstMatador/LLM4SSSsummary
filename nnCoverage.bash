@@ -1,2 +1,2 @@
-python ./nnCoverage/getData.py -C ./conf/GPT4SSS.json
+python ./nnCoverage/getData.py -C ./conf/AutoTimes.json
 python ./nnCoverage/nnCoverage.py

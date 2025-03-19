@@ -1,7 +1,6 @@
 import sys
 import argparse
 import torch
-torch.set_float32_matmul_precision('high')
 import numpy as np
 import torch.nn as nn
 
@@ -15,6 +14,10 @@ from model.AutoTimes import AutoTimes
 from model.UniTime import UniTime
 from model.S2IPLLM import S2IPLLM
 
+
+torch.set_float32_matmul_precision('high')
+torch.backends.cudnn.benchmark = True
+
 # configure
 max_data_size = 10_000_000
 data_size = 1_000_000
@@ -25,17 +28,15 @@ query_size = 1_000
 len_series = 256
 len_reduce = 16
 
-batch_size = 1000
+batch_size1 = 2000
+batch_size2 = 100
 
 def load_binary_data(file_path, indices, len_series):
-
     data = np.zeros((len(indices), len_series), dtype=np.float32)
-    
     with open(file_path, 'rb') as f:
         for i, index in enumerate(indices):
             f.seek(4 * len_series * index)
             data[i] = np.frombuffer(f.read(4 * len_series), dtype=np.float32)
-    
     return torch.tensor(data, dtype=torch.float32)
 
 def main(argv):
@@ -67,8 +68,8 @@ def main(argv):
     origin_data = load_binary_data(data_pos, data_indices, len_series)
     origin_query = load_binary_data(query_pos, query_indices, len_series)
 
-    origin_data = origin_data.view(-1, batch_size, len_series).to(device, non_blocking=True)
-    origin_query = origin_query.view(-1, batch_size, len_series).to(device, non_blocking=True)
+    origin_data = origin_data.view(-1, batch_size1, len_series).to(device, non_blocking=True)
+    origin_query = origin_query.view(-1, batch_size2, len_series).to(device, non_blocking=True)
 
     model_map = {
         "GPT4SSS": GPT4SSS,
@@ -77,26 +78,23 @@ def main(argv):
         "UniTime": UniTime,
         "S2IPLLM": S2IPLLM
     }
-    model = model_map[model_selected](conf)
+    model = model_map[model_selected](conf).to(device)
     
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.load(model_path)
     model.load_state_dict(checkpoint)
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model, device_ids=selected_devices).to(device)
 
-    try:
-        model = torch.compile(model)
-    except AttributeError:
-        pass
+    if torch.cuda.device_count() > 1:
+        model = nn.DataParallel(model, device_ids=selected_devices)
 
     mask = torch.ones((1, len_series)).to(device) if model_selected == "UniTime" else None
     
     # Start Function Processing Data
-    def process_batches(data, reduce_pos, origin_pos):
+    def process_batches(data, reduce_pos, origin_pos, batch_size):
         reduce_batches = np.empty((data.shape[0] * batch_size, len_reduce), dtype=np.float32)
         original_batches = np.empty((data.shape[0] * batch_size, len_series), dtype=np.float32)
 
-        with torch.no_grad():
+        stream = torch.cuda.Stream()
+        with torch.no_grad(), torch.cuda.stream(stream):
             for i, batch in enumerate(data):
                 original_batches[i * batch_size : (i + 1) * batch_size] = batch.cpu().numpy()
                 reduce_batch = model(batch, mask) if mask is not None else model(batch)
@@ -108,8 +106,8 @@ def main(argv):
     # End Function Processing Data
 
     print("Start Processing Data...")
-    process_batches(origin_data, reduce_data_pos, origin_data_pos)
-    process_batches(origin_query, reduce_query_pos, origin_query_pos)
+    process_batches(origin_data, reduce_data_pos, origin_data_pos, batch_size1)
+    process_batches(origin_query, reduce_query_pos, origin_query_pos,batch_size2)
     print("Processing Completed!")
 
 

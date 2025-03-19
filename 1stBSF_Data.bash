@@ -1,1 +1,1 @@
-python -u ./1stBSF_Data/genData.py -C ./conf/AutoTimes.json
+python -u ./1stBSF_Data/genData.py -C ./conf/S2IPLLM.json

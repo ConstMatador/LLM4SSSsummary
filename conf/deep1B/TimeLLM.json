@@ -1,6 +1,6 @@
 {
     "model_selected": "TimeLLM",
-    "dataset_selected": "human",
+    "dataset_selected": "deep1B",
 
     "conf_path": "./conf/TimeLLM.json",
     "data_path": "../Data/LLM4SSS/",
@@ -14,14 +14,14 @@
     "log_path": "./example/TimeLLM/log/example.log",
     "model_path": "./example/TimeLLM/model/",
 
-    "device": "cuda:7",
-    "GPUs": [7],
+    "device": "cuda:6",
+    "GPUs": [6, 7],
     
     "llm_type": "gpt2",
     "llm_layers": 6,
 
     "epoch_max": 100,
-    "len_series": 256,
+    "len_series": 96,
     "len_reduce": 16,
     "batch_size": 512,
     
@@ -40,7 +40,7 @@
 
     "reduced_vocab_size": 1000,
 
-    "seq_overview": "These sequences have a sequence length of 256. We need to compress them into sequences of length 16 and try to keep the original sequence features.",
+    "seq_overview": "These sequences have a length of 96. We need to compress them into sequences of length 16 and try to keep the original sequence features.",
 
     "prompt_len": 256
 }

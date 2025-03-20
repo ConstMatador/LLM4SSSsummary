@@ -1,6 +1,7 @@
 import numpy as np
 import faiss
 from tqdm import tqdm
+import os
 
 model_selected = "AutoTimes"
 dataset_selected = "human"
@@ -15,12 +16,12 @@ data_pos = f"1stBSF_Data/{model_selected}/{dataset_selected}/origin_data.bin"
 query_pos = f"1stBSF_Data/{model_selected}/{dataset_selected}/origin_query.bin"
 
 # nearest
-data_path = f"1stBSF_Data/{model_selected}/{dataset_selected}/origin_data.bin"
+reduce_data_pos = f"1stBSF_Data/{model_selected}/{dataset_selected}/reduce_data.bin"
 approIndex_series = f"1stBSF_Data/{model_selected}/{dataset_selected}/origin_query.bin"
 exactIndex_path = f"1stBSF_Tightness/{model_selected}/{dataset_selected}/exactIndex.txt"
 
 # split
-source_path = f"1stBSF_Tightness/{model_selected}/{model_selected}/approSeries.bin"
+source_path = f"1stBSF_Tightness/{model_selected}/{dataset_selected}/approSeries.bin"
 target_paths = [
     f"1stBSF_Tightness/{model_selected}/{dataset_selected}/approSeries_1.bin",
     f"1stBSF_Tightness/{model_selected}/{dataset_selected}/approSeries_5.bin",
@@ -45,7 +46,7 @@ node_nums = [1, 5, 10, 50, 100]
 
 
 def nearest():
-    data = np.fromfile(data_path, dtype=np.float32).reshape(-1, 256)
+    data = np.fromfile(data_pos, dtype=np.float32).reshape(-1, 256)
     queries = np.fromfile(approIndex_series, dtype=np.float32).reshape(-1, 256)
 
     index = faiss.IndexFlatL2(256)
@@ -78,7 +79,7 @@ def split():
 def getIndex():
     for i in range(0, 5):
         approSeries_path = approSeries_paths[i]
-        data_seq = np.memmap(data_path, dtype=np.float32, mode='r', shape=(data_num, len_reduce))
+        data_seq = np.memmap(reduce_data_pos, dtype=np.float32, mode='r', shape=(data_num, len_reduce))
         query_seq = np.fromfile(approSeries_path, dtype=np.float32, count=query_num * len_reduce).reshape(query_num, len_reduce)
         approIndex_path = approIndex_paths[i]
 
@@ -126,3 +127,15 @@ def tightness():
             
         tightness_mean = np.mean(all_tightness)
         print(f"1st-BSF Tightness for {node_num} nodes: {tightness_mean}")
+        
+        
+def main():
+    if not os.path.exists(exactIndex_path):
+        nearest()
+    split()
+    getIndex()
+    tightness()
+    
+    
+if __name__ == "__main__":
+    main()

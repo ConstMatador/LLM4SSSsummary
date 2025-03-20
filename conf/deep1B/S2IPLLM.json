@@ -1,6 +1,6 @@
 {
     "model_selected": "S2IPLLM",
-    "dataset_selected": "human",
+    "dataset_selected": "deep1B",
 
     "conf_path": "./conf/S2IPLLM.json",
     "data_path": "../Data/LLM4SSS/",
@@ -14,8 +14,8 @@
     "log_path": "./example/S2IPLLM/log/example.log",
     "model_path": "./example/S2IPLLM/model/",
 
-    "device": "cuda:7",
-    "GPUs": [7],
+    "device": "cuda:2",
+    "GPUs": [2],
 
     "llm_type": "gpt2",
     "llm_layers": 6,
@@ -24,24 +24,24 @@
     "dim_llm": 768,
 
     "epoch_max": 100,
-    "len_series": 256,
+    "len_series": 96,
     "len_reduce": 16,
-    "batch_size": 512,
+    "batch_size": 1024,
     
     "data_size": 1000000,
     "train_size":200000,
     "val_size": 10000,
     "test_size": 10000,
 
-    "win_size": 16,
-    "stride": 16,
+    "win_size": 8,
+    "stride": 8,
 
     "trend_len": 16,
     "seasonal_len": 16,
     "pool_size": 1000,
     "prompt_key_init": "text_prototype",
     "embedding_key": "mean",
-    "top_k": 16,
+    "top_k": 8,
 
     "encoder_type": "linear",
     "decoder_type": "linear",

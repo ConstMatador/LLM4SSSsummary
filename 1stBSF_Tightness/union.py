@@ -3,7 +3,7 @@ import faiss
 from tqdm import tqdm
 import os
 
-model_selected = "AutoTimes"
+model_selected = "GPT4SSS"
 dataset_selected = "human"
 
 len_series = 256
@@ -132,8 +132,13 @@ def tightness():
 def main():
     if not os.path.exists(exactIndex_path):
         nearest()
-    split()
-    getIndex()
+        
+    if not os.path.exists(approSeries_paths[0]):
+        split()
+        
+    if not os.path.exists(approIndex_paths[0]):
+        getIndex()
+        
     tightness()
     
     

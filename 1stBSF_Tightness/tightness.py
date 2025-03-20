@@ -7,8 +7,8 @@ index_num = 1000
 
 data_pos = f"1stBSF_Data/{model_selected}/origin_data.bin"
 query_pos = f"1stBSF_Data/{model_selected}/origin_query.bin"
-exact_index_path = f"1stBSF_Tightness/{model_selected}/exactIndex.txt"
-appro_index_paths = [
+exactIndex_path = f"1stBSF_Tightness/{model_selected}/exactIndex.txt"
+approIndex_paths = [
     f"1stBSF_Tightness/{model_selected}/approIndex_1.txt",
     f"1stBSF_Tightness/{model_selected}/approIndex_5.txt",
     f"1stBSF_Tightness/{model_selected}/approIndex_10.txt",
@@ -18,7 +18,7 @@ appro_index_paths = [
 node_nums = [1, 5, 10, 50, 100]
 
 exact_indice = []
-with open(exact_index_path, 'r') as file:
+with open(exactIndex_path, 'r') as file:
         for line in file:
             index = int(line.strip())
             exact_indice.append(index)
@@ -26,7 +26,7 @@ with open(exact_index_path, 'r') as file:
 origin_data = np.fromfile(data_pos, dtype=np.float32).reshape(-1, len_series)
 origin_query = np.fromfile(query_pos, dtype=np.float32).reshape(-1, len_series)
 
-for appro_index_path, node_num in zip(appro_index_paths, node_nums):
+for appro_index_path, node_num in zip(approIndex_paths, node_nums):
     
     appro_indice = []
     with open(appro_index_path, 'r') as file:

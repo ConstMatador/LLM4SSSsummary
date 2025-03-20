@@ -10,13 +10,13 @@ target_paths = [
     f"1stBSF_Tightness/{model_selected}/approSeries_50.bin",
     f"1stBSF_Tightness/{model_selected}/approSeries_100.bin"
 ]
-len_series = 16
+len_reduce = 16
 whole_size = 5000
 slice_size = 1000
 
 sequences = []
 for idx in range(0, whole_size):
-    sequence = np.fromfile(source_path, dtype=np.float32, count=len_series, offset=4 * len_series * idx)
+    sequence = np.fromfile(source_path, dtype=np.float32, count=len_reduce, offset=4 * len_reduce * idx)
     sequences.append(sequence)
 
 for i in range(0, 5):

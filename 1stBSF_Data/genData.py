@@ -28,7 +28,7 @@ query_size = 1_000
 len_series = 256
 len_reduce = 16
 
-batch_size1 = 2000
+batch_size1 = 500
 batch_size2 = 100
 
 def load_binary_data(file_path, indices, len_series):

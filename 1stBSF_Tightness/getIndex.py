@@ -2,8 +2,8 @@ import numpy as np
 
 
 data_num = 1_000_000
-query_num = 1000
-len_series = 16
+query_num = 1_000
+len_reduce = 16
 model_selected = "GPT4SSS"
 
 data_path = f"1stBSF_Data/{model_selected}/reduce_data.bin"
@@ -24,8 +24,8 @@ output_paths = [
 
 for i in range(0, 5):
     query_path = query_paths[i]
-    data_seq = np.memmap(data_path, dtype=np.float32, mode='r', shape=(data_num, len_series))
-    query_seq = np.fromfile(query_path, dtype=np.float32, count=query_num * len_series).reshape(query_num, len_series)
+    data_seq = np.memmap(data_path, dtype=np.float32, mode='r', shape=(data_num, len_reduce))
+    query_seq = np.fromfile(query_path, dtype=np.float32, count=query_num * len_reduce).reshape(query_num, len_reduce)
     output_path = output_paths[i]
     
     with open(output_path, 'a') as f:

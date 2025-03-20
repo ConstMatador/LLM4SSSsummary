@@ -1,2 +1,4 @@
 rm 1stBSF_Data.out
-nohup python -u ./1stBSF_Data/genData.py -C ./conf/TimeLLM.json > 1stBSF_Data.out 2>&1 &
+dataset="human"
+model="TimeLLM"
+nohup python -u ./1stBSF_Data/genData.py -C ./conf/$dataset/$model.json > 1stBSF_Data.out 2>&1 &

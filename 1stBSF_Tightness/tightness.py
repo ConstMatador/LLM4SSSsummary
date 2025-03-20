@@ -3,7 +3,7 @@ import faiss
 from tqdm import tqdm
 import os
 
-model_selected = "GPT4SSS"
+model_selected = "UniTime"
 dataset_selected = "human"
 
 len_series = 256
@@ -126,7 +126,7 @@ def tightness():
             all_tightness.append(tightness)
             
         tightness_mean = np.mean(all_tightness)
-        print(f"1st-BSF Tightness for {node_num} nodes: {tightness_mean}")
+        print(f"{tightness_mean}")
         
         
 def main():

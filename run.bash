@@ -1,1 +1,3 @@
-nohup python -u LLM4SSSsummary_run.py -C conf/TimeLLM.json > run.out 2>&1 &
+dataset="deep1B"
+model="TimeLLM"
+nohup python -u LLM4SSSsummary_run.py -C conf/$dataset/$model.json > run.out 2>&1 &

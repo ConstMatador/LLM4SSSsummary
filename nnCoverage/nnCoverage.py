@@ -27,11 +27,6 @@ def get_data(data_path, data_size, length):
     return data
 
 
-def clear_gpu_memory():
-    cp.get_default_memory_pool().free_all_blocks()
-    gc.collect()
-
-
 def knn_search_batch(data, queries_batch, k, length):
     # data: (data_size, len), queries_batch: (batch_size, len)
     distances = cp.linalg.norm(data[:, cp.newaxis] - queries_batch, axis=2)
@@ -40,7 +35,7 @@ def knn_search_batch(data, queries_batch, k, length):
     # knn_indices: (k, batch_size)
     knn_distances = cp.take_along_axis(distances, knn_indices, axis=0)
     # knn_distances: (k, batch_size)
-    knn_distances /= cp.sqrt(length)
+    knn_distances /= cp.sqrt(float(length))
     return knn_indices, knn_distances
 
 
@@ -48,6 +43,7 @@ def process_batches(data, queries, k, batch_size, length):
     knn_indices_all = []
     knn_distances_all = []
     num_batches = (queries.shape[0] + batch_size - 1) // batch_size
+
     for i in range(num_batches):
         start = i * batch_size
         end = min((i + 1) * batch_size, queries.shape[0])

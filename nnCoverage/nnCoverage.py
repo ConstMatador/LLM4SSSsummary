@@ -1,9 +1,13 @@
+import argparse
 import cupy as cp
 import statistics
-import os
 import gc
+import sys
 
-os.chdir('/mnt/data/user_liangzhiyu/wangzhongzheng/LLM4SSSsummary/')
+root_dir = "/mnt/data/user_liangzhiyu/wangzhongzheng/LLM4SSSsummary/"
+sys.path.append(root_dir)
+
+from utils.conf import Configuration
 
 origin_data_pos = "./nnCoverage/data/origin_data.bin"
 origin_query_pos = "./nnCoverage/data/origin_query.bin"
@@ -15,8 +19,6 @@ knn_reduce_result = "./nnCoverage/result/knn_reduce_result.txt"
 
 data_size = 20000
 query_size = 1000
-len_series = 256
-len_reduce = 16
 k = 10
 
 
@@ -24,9 +26,11 @@ def get_data(data_path, data_size, length):
     data = cp.fromfile(data_path, dtype=cp.float32, count=data_size * length).reshape(-1, length)
     return data
 
+
 def clear_gpu_memory():
     cp.get_default_memory_pool().free_all_blocks()
     gc.collect()
+
 
 def knn_search_batch(data, queries_batch, k, length):
     # data: (data_size, len), queries_batch: (batch_size, len)
@@ -38,6 +42,7 @@ def knn_search_batch(data, queries_batch, k, length):
     # knn_distances: (k, batch_size)
     knn_distances /= cp.sqrt(length)
     return knn_indices, knn_distances
+
 
 def process_batches(data, queries, k, batch_size, length):
     knn_indices_all = []
@@ -55,6 +60,7 @@ def process_batches(data, queries, k, batch_size, length):
     knn_distances_all = cp.concatenate(knn_distances_all, axis=1)
     return knn_indices_all, knn_distances_all
 
+
 def write_results_to_file(knn_indices, knn_distances, k, output_file):
     with open(output_file, 'w') as f:
         for query_idx in range(knn_indices.shape[1]):
@@ -62,6 +68,7 @@ def write_results_to_file(knn_indices, knn_distances, k, output_file):
                 distance = knn_distances[nn_idx, query_idx]
                 index = knn_indices[nn_idx, query_idx]
                 f.write(f"the [{query_idx}] query [{nn_idx}] NN is {distance:.6f} at {index}\n")
+                
                 
 def read_results_from_file(input_file):
     nn_data = {}
@@ -76,13 +83,7 @@ def read_results_from_file(input_file):
                 nn_data[query_index] = []
             nn_data[query_index].append((nn_index, nn_value, nn_position))
     return nn_data
-    # {
-    #     query_index: [
-    #         (nn_index, nn_value, nn_position),
-    #         ...
-    #     ],
-    #     ...
-    # }
+
     
 def compare_nn_positions(nn_data1, nn_data2):
     similarity_ratios = {}
@@ -96,22 +97,35 @@ def compare_nn_positions(nn_data1, nn_data2):
     return statistics.mean(similarity_ratios.values())
 
 
-origin_data = get_data(origin_data_pos, data_size, len_series)
-origin_query = get_data(origin_query_pos, query_size, len_series)
-reduce_data = get_data(reduce_data_pos, data_size, len_reduce)
-reduce_query = get_data(reduce_query_pos, query_size, len_reduce)
-# print(origin_data.shape, origin_query.shape)
-# print(reduce_data.shape, reduce_query.shape)
-knn_indices_origin, knn_distances_origin = process_batches(origin_data, origin_query, k, 100, len_series)
-knn_indices_reduce, knn_distances_reduce = process_batches(reduce_data, reduce_query, k, 100, len_reduce)
-# print(knn_indices_origin.shape, knn_distances_origin.shape)
-# print(knn_indices_reduce.shape, knn_distances_reduce.shape)
-write_results_to_file(knn_indices_origin, knn_distances_origin, k, knn_origin_result)
-write_results_to_file(knn_indices_reduce, knn_distances_reduce, k, knn_reduce_result)
+def main(argv):
+    parser = argparse.ArgumentParser(description='Command-line parameters')
+    parser.add_argument('-C', '--conf', type=str, required=True, dest='confpath', help='path of conf file')
+    args = parser.parse_args(argv[1: ])
+    conf = Configuration(args.confpath)
 
-knn_result_origin = read_results_from_file(knn_origin_result)
-knn_result_reduce = read_results_from_file(knn_reduce_result)
+    len_series = conf.getEntry('len_series')
+    len_reduce = conf.getEntry('len_reduce')
 
-mean_similarity_ratio = compare_nn_positions(knn_result_origin, knn_result_reduce)
+    origin_data = get_data(origin_data_pos, data_size, len_series)
+    origin_query = get_data(origin_query_pos, query_size, len_series)
+    reduce_data = get_data(reduce_data_pos, data_size, len_reduce)
+    reduce_query = get_data(reduce_query_pos, query_size, len_reduce)
+    # print(origin_data.shape, origin_query.shape)
+    # print(reduce_data.shape, reduce_query.shape)
+    knn_indices_origin, knn_distances_origin = process_batches(origin_data, origin_query, k, 100, len_series)
+    knn_indices_reduce, knn_distances_reduce = process_batches(reduce_data, reduce_query, k, 100, len_reduce)
+    # print(knn_indices_origin.shape, knn_distances_origin.shape)
+    # print(knn_indices_reduce.shape, knn_distances_reduce.shape)
+    write_results_to_file(knn_indices_origin, knn_distances_origin, k, knn_origin_result)
+    write_results_to_file(knn_indices_reduce, knn_distances_reduce, k, knn_reduce_result)
 
-print(f"Mean similarity ratio: {mean_similarity_ratio:.4f}")
+    knn_result_origin = read_results_from_file(knn_origin_result)
+    knn_result_reduce = read_results_from_file(knn_reduce_result)
+
+    mean_similarity_ratio = compare_nn_positions(knn_result_origin, knn_result_reduce)
+
+    print(f"Mean similarity ratio: {mean_similarity_ratio:.4f}")
+    
+
+if __name__ == '__main__':
+    main(sys.argv)

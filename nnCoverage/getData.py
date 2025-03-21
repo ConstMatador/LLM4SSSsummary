@@ -25,9 +25,6 @@ max_data_size = 1000000
 data_size = 20000
 max_query_size = 10000
 query_size = 1000
-len_series = 256
-len_reduce = 16
-
 batch_size = 200
 
 
@@ -40,13 +37,15 @@ def main(argv):
     model_selected = conf.getEntry("model_selected")
     device = conf.getEntry("device")
     selected_devices = conf.getEntry("GPUs")
-    
-    model_path = "./example/" + model_selected + "/save/200000train_human.pth"
-    
     dataset_selected = conf.getEntry("dataset_selected")
+    model_path = f"./example/{model_selected}/save/200000train_{dataset_selected}.pth"
+
     data_path = conf.getEntry("data_path")
     data_pos = data_path + dataset_selected + "/data.bin"
     query_pos = data_path + dataset_selected + "/query.bin"
+    
+    len_series = conf.getEntry("len_series")
+    len_reduce = conf.getEntry("len_reduce")
     
     # getTestData Function
     def getTestData(data_pos, query_pos, data_size, query_size):

@@ -3,10 +3,10 @@ import faiss
 from tqdm import tqdm
 import os
 
-model_selected = "UniTime"
-dataset_selected = "human"
+model_selected = "AutoTimes"
+dataset_selected = "deep1B"
 
-len_series = 256
+len_series = 96
 len_reduce = 16
 
 data_num = 1_000_000
@@ -46,10 +46,10 @@ node_nums = [1, 5, 10, 50, 100]
 
 
 def nearest():
-    data = np.fromfile(data_pos, dtype=np.float32).reshape(-1, 256)
-    queries = np.fromfile(approIndex_series, dtype=np.float32).reshape(-1, 256)
+    data = np.fromfile(data_pos, dtype=np.float32).reshape(-1, len_series)
+    queries = np.fromfile(approIndex_series, dtype=np.float32).reshape(-1, len_series)
 
-    index = faiss.IndexFlatL2(256)
+    index = faiss.IndexFlatL2(len_series)
     index.add(data)
 
     batch_size = 100

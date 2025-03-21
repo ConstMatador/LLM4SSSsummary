@@ -25,11 +25,9 @@ data_size = 1_000_000
 max_query_size = 10_000
 query_size = 1_000
 
-len_series = 256
-len_reduce = 16
-
 batch_size1 = 500
 batch_size2 = 100
+
 
 def load_binary_data(file_path, indices, len_series):
     data = np.zeros((len(indices), len_series), dtype=np.float32)
@@ -38,6 +36,7 @@ def load_binary_data(file_path, indices, len_series):
             f.seek(4 * len_series * index)
             data[i] = np.frombuffer(f.read(4 * len_series), dtype=np.float32)
     return torch.tensor(data, dtype=torch.float32)
+
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Command-line parameters')
@@ -48,10 +47,11 @@ def main(argv):
     model_selected = conf.getEntry("model_selected")
     device = conf.getEntry("device")
     selected_devices = conf.getEntry("GPUs")
-
-    model_path = f"./example/{model_selected}/save/200000train_human.pth"
-
+    
     dataset_selected = conf.getEntry("dataset_selected")
+
+    model_path = f"./example/{model_selected}/save/200000train_{dataset_selected}.pth"
+
     data_path = conf.getEntry("data_path")
 
     data_pos = data_path + dataset_selected + "/data.bin"
@@ -61,6 +61,10 @@ def main(argv):
     origin_query_pos = f"./1stBSF_Data/{model_selected}/{dataset_selected}/origin_query.bin"
     reduce_data_pos = f"./1stBSF_Data/{model_selected}/{dataset_selected}/reduce_data.bin"
     reduce_query_pos = f"./1stBSF_Data/{model_selected}/{dataset_selected}/reduce_query.bin"
+    
+    len_series = conf.getEntry("len_series")
+    len_reduce = conf.getEntry("len_reduce")
+    len_reduce = conf.getEntry("len_reduce")
 
     data_indices = np.random.randint(0, max_data_size, size=data_size, dtype=np.int64)
     query_indices = np.random.randint(0, max_query_size, size=query_size, dtype=np.int64)

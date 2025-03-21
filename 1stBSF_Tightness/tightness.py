@@ -3,7 +3,7 @@ import faiss
 from tqdm import tqdm
 import os
 
-model_selected = "AutoTimes"
+model_selected = "S2IPLLM"
 dataset_selected = "deep1B"
 
 len_series = 96

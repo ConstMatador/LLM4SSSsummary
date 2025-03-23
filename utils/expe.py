@@ -32,7 +32,7 @@ class Experiment:
             self.mask_rate = self.conf.getEntry("mask_rate")
             
         # Early Stopping
-        self.patience = 10
+        self.patience = 6
         self.best_val_error = float('inf')
         self.epochs_without_improvement = 0
         

@@ -1,6 +1,6 @@
 {
     "model_selected": "AutoTimes",
-    "dataset_selected": "deep1B",
+    "dataset_selected": "sald",
 
     "conf_path": "./conf/AutoTimes.json",
     "data_path": "../Data/LLM4SSS/",
@@ -14,8 +14,8 @@
     "log_path": "./example/AutoTimes/log/example.log",
     "model_path": "./example/AutoTimes/model/",
 
-    "device": "cuda:2",
-    "GPUs": [2],
+    "device": "cuda:5",
+    "GPUs": [5],
 
     "llm_type": "gpt2",
     "llm_layers": 6,
@@ -24,17 +24,17 @@
     "dim_llm": 768,
 
     "epoch_max": 100,
-    "len_series": 96,
+    "len_series": 128,
     "len_reduce": 16,
-    "batch_size": 1024,
+    "batch_size": 2048,
     
     "data_size": 1000000,
     "train_size":200000,
     "val_size": 10000,
     "test_size": 10000,
 
-    "win_size": 8,
-    "stride": 8,
+    "win_size": 16,
+    "stride": 16,
     "mlp_layers": 2,
     "mlp_dim": 512,
 

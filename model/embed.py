@@ -21,28 +21,33 @@ class PositionalEmbedding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        return self.pe[:, :x.size(1)]
+        return self.pe[:, :x.size(1)]       # pyright:ignore
     
 
 class DataEmbedding(nn.Module):
     def __init__(self, conf:Configuration):
         super(DataEmbedding, self).__init__()
         
+        self.len_series = conf.getEntry('len_series')
         self.dim_model = conf.getEntry('dim_model')
         self.dropout = conf.getEntry('dropout')
+        self.patch_len = conf.getEntry('patch_len')
+        self.stride = conf.getEntry('stride')
+        self.patch_num = (self.len_series - self.patch_len) // self.stride + 1
         
         padding = 1 if torch.__version__ >= '1.5.0' else 2
-        self.tokenConv = nn.Conv1d(in_channels=1, out_channels=self.dim_model,
-                                   kernel_size=3, padding=padding, padding_mode='circular', bias=False)
+        self.tokenConv = nn.Conv1d(in_channels=self.patch_len, out_channels=self.dim_model, 
+                                   kernel_size=3, padding=padding,
+                                   padding_mode='circular', bias=False)
         self.position_mbedding = PositionalEmbedding(self.dim_model)
         self.dropout = nn.Dropout(p=self.dropout)
 
     def forward(self, x):
         # x: [batch_size, len_series]
-        x = x.unsqueeze(1)
-        # x: [batch_size, 1, len_series]
+        x = x.unfold(dimension=-1, size=self.patch_len, step=self.stride).permute(0, 2, 1)
+        # x: [batch_size, patch_len, patch_num]
         x = self.tokenConv(x).permute(0, 2, 1)
-        # x: [batch_size, len_series, dim_model]
+        # x: [batch_size, patch_num, dim_model]
         x = x + self.position_mbedding(x)
-        # x: [batch_size, len_series, dim_model]
+        # x: [batch_size, patch_num, dim_model]
         return self.dropout(x)

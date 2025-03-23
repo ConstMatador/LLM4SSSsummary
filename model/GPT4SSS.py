@@ -43,32 +43,25 @@ class GPT4SSS(nn.Module):
                 param.requires_grad = False
         
         self.flatten = nn.Flatten(start_dim=1)
-        self.dim_mid = math.floor(math.sqrt(self.len_series * self.dim_ff))
-        self.linear1 = nn.Linear(self.len_series * self.dim_ff, self.dim_mid)
-        self.tanh = nn.Tanh()
-        self.dropout = nn.Dropout(p=0.1)
-        self.linear2 = nn.Linear(self.dim_mid, self.len_reduce)
+
+        self.patch_len = conf.getEntry('patch_len')
+        self.stride = conf.getEntry('stride')
+        self.patch_num = (self.len_series - self.patch_len) // self.stride + 1
+        self.projection = nn.Linear(self.patch_num*self.dim_ff, self.len_reduce)
         
         
     def forward(self, x):
         # x: [batch_size, len_series]
         x = self.enc_embedding(x)
-        # x: [batch_size, len_series, dim_model]
+        # x: [batch_size, patch_num, dim_model]
         x = nn.functional.pad(x, (0, self.dim_llm - x.size(-1)))
-        # x: [batch_size, len_series, dim_llm]
+        # x: [batch_size, patch_num, dim_llm]
         x = self.llm(inputs_embeds=x).last_hidden_state
-        # x: [batch_size, len_series, dim_llm]
+        # x: [batch_size, patch_num, dim_llm]
         x = x[:, :, :self.dim_ff]
-        # x: [batch_size, len_series, dim_ff]
+        # x: [batch_size, patch_num, dim_ff]
         x = self.flatten(x)
-        # x: [batch_size, len_series * dim_ff]
-        x = self.linear1(x)
-        # x: [batch_size, dim_mid]
-        x = self.tanh(x)
-        # x: [batch_size, dim_mid]
-        x = self.dropout(x)
-        # x: [batch_size, dim_mid]
-        x = self.linear2(x)
+        # x: [batch_size, patch_num * dim_ff]
+        x = self.projection(x)
         # x: [batch_size, len_reduce]
-        
         return x

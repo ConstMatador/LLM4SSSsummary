@@ -1,4 +1,4 @@
-for folder in human deep1B astro; do
+for folder in human deep1B astro sald; do
     mkdir -p conf/$folder
 done
 
@@ -9,7 +9,7 @@ for folder in GPT4SSS TimeLLM AutoTimes UniTime S2IPLLM; do
 done
 
 for folder in GPT4SSS TimeLLM AutoTimes UniTime S2IPLLM; do
-    for sub in human deep1B astro; do
+    for sub in human deep1B astro sald; do
         mkdir -p 1stBSF_Data/$folder/$sub
         mkdir -p 1stBSF_Tightness/$folder/$sub
     done

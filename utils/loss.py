@@ -18,5 +18,7 @@ class ScaledL2Loss(nn.Module):
         original_l2 = self.l2(one, another) / self.scale_factor_original    # (batch_size)
         reduce_l2 = self.l2(one_reduce, another_reduce) / self.scale_factor_reduce    # (batch_size)
         
-        return self.l1(original_l2.reshape(1, -1), reduce_l2.reshape(1, -1))[0] / one.shape[0]    
+        loss = self.l1(original_l2.reshape(1, -1), reduce_l2.reshape(1, -1))[0] / one.shape[0]
+        # print(loss)
+        return loss
         # (1, batch_size) -> scalar

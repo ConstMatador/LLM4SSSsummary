@@ -179,7 +179,7 @@ class Experiment:
         logging.info(f'epoch: {self.epoch}, start training')
         
         for one_batch, another_batch in zip(self.train_loader1, self.train_loader2):
-            
+            # print(one_batch.shape, another_batch.shape)
             self.optimizer.zero_grad()
             
             # masking
